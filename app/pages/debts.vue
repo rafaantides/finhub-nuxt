@@ -23,9 +23,12 @@ const columnFilters = ref([
 const columnVisibility = ref()
 const rowSelection = ref({})
 
+const route = useRoute()
+const router = useRouter()
+
 const pagination = ref({
-  pageIndex: 0,
-  pageSize: config.public.defaultPageSize
+  pageIndex: Number(route.query.page || 1) - 1,
+  pageSize: Number(route.query.page_size || config.public.defaultPageSize)
 })
 
 const query = computed(() => ({
@@ -40,6 +43,30 @@ const { data, status } = useFetch<ApiResponse<Debt[]>>('/api/debts', {
 
 const debts = computed(() => data.value?.data ?? [])
 const total = computed(() => data.value?.total ?? 0)
+
+watch(
+  () => pagination.value.pageSize,
+  (newSize) => {
+    router.replace({
+      query: {
+        ...route.query,
+        page_size: newSize.toString()
+      }
+    })
+  }
+)
+
+watch(
+  () => pagination.value.pageIndex,
+  (newPage) => {
+    router.replace({
+      query: {
+        ...route.query,
+        page: (newPage + 1).toString()
+      }
+    })
+  }
+)
 
 function getRowItems(row: Row<Debt>) {
   return [
