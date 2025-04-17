@@ -58,3 +58,53 @@ export interface Range {
   start: Date
   end: Date
 }
+
+export interface DebtResponse {
+  id: string
+  title: string
+  amount: number
+  purchase_date: string
+  due_date?: string
+  created_at: string
+  updated_at: string
+
+  status: {
+    id: string
+    name: 'paid' | 'overdue' | 'pending'
+  }
+
+  invoice?: {
+    id: string
+    title: string
+  }
+
+  category?: {
+    id: string
+    name: string
+  }
+}
+
+export interface DebtApiResponse {
+  data: DebtResponse[]
+  total: number
+}
+
+export interface InvoiceResponse {
+  id: string
+  title: string
+  amount: number
+  issue_date?: string
+  due_date: string
+  created_at: string
+  updated_at: string
+
+  status: {
+    id: string
+    name: 'paid' | 'overdue' | 'pending'
+  }
+}
+
+export interface InvoiceApiResponse {
+  data: InvoiceResponse[]
+  total: number
+}
