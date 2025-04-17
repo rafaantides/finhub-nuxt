@@ -16,7 +16,7 @@ const links = [
     },
     {
       label: 'Faturas',
-      icon: 'i-lucide-credit-card',
+      icon: 'i-lucide-receipt-text',
       to: '/invoices',
       onSelect: () => {
         open.value = false

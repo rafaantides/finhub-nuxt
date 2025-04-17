@@ -1,16 +1,19 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  modules: [
-    '@nuxt/eslint',
-    '@nuxt/ui-pro',
-    '@vueuse/nuxt'
-  ],
+  modules: ['@nuxt/eslint', '@nuxt/ui-pro', '@vueuse/nuxt'],
 
   devtools: {
     enabled: true
   },
 
   css: ['~/assets/css/main.css'],
+
+  runtimeConfig: {
+    apiBaseUrl: process.env.API_BASE_URL,
+    public: {
+      defaultPageSize: 10
+    }
+  },
 
   routeRules: {
     '/api/**': {

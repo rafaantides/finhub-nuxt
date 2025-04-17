@@ -59,7 +59,7 @@ export interface Range {
   end: Date
 }
 
-export interface DebtResponse {
+export interface Debt {
   id: string
   title: string
   amount: number
@@ -84,9 +84,10 @@ export interface DebtResponse {
   }
 }
 
-export interface DebtApiResponse {
-  data: DebtResponse[]
-  total: number
+export interface ApiResponse<T> {
+  data?: T | null
+  error?: string | null
+  total?: number | null
 }
 
 export interface InvoiceResponse {

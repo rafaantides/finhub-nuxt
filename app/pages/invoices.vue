@@ -105,8 +105,9 @@ const columns: TableColumn<InvoiceResponse>[] = [
       })
   },
   {
-    accessorKey: 'id',
-    header: 'ID'
+    accessorKey: 'issue_date',
+    header: 'Data de Emissão',
+    cell: ({ row }) => row.original.issue_date || 'Sem emissão'
   },
   {
     accessorKey: 'title',
@@ -116,11 +117,6 @@ const columns: TableColumn<InvoiceResponse>[] = [
     accessorKey: 'amount',
     header: 'Valor',
     cell: ({ row }) => `R$${row.original.amount.toFixed(2)}`
-  },
-  {
-    accessorKey: 'issue_date',
-    header: 'Data de Emissão',
-    cell: ({ row }) => row.original.issue_date
   },
   {
     accessorKey: 'due_date',

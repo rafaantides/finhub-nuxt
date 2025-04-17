@@ -2,7 +2,9 @@
 import type { TableColumn } from '@nuxt/ui'
 import type { Row } from '@tanstack/table-core'
 import { upperFirst } from 'scule'
-import type { DebtApiResponse, DebtResponse } from '~/types'
+import type { ApiResponse, Debt } from '~/types'
+
+const config = useRuntimeConfig()
 
 const UButton = resolveComponent('UButton')
 const UBadge = resolveComponent('UBadge')
@@ -23,7 +25,7 @@ const rowSelection = ref({})
 
 const pagination = ref({
   pageIndex: 0,
-  pageSize: 10
+  pageSize: config.public.defaultPageSize
 })
 
 const query = computed(() => ({
@@ -31,7 +33,7 @@ const query = computed(() => ({
   page_size: pagination.value.pageSize
 }))
 
-const { data, status } = useFetch<DebtApiResponse>('/api/debts', {
+const { data, status } = useFetch<ApiResponse<Debt[]>>('/api/debts', {
   query,
   lazy: true
 })
@@ -39,7 +41,7 @@ const { data, status } = useFetch<DebtApiResponse>('/api/debts', {
 const debts = computed(() => data.value?.data ?? [])
 const total = computed(() => data.value?.total ?? 0)
 
-function getRowItems(row: Row<DebtResponse>) {
+function getRowItems(row: Row<Debt>) {
   return [
     {
       type: 'label',
@@ -84,7 +86,7 @@ function getRowItems(row: Row<DebtResponse>) {
   ]
 }
 
-const columns: TableColumn<DebtResponse>[] = [
+const columns: TableColumn<Debt>[] = [
   {
     id: 'select',
     header: ({ table }) =>
@@ -105,13 +107,14 @@ const columns: TableColumn<DebtResponse>[] = [
       })
   },
   {
-    accessorKey: 'id',
-    header: 'ID'
-  },
-  {
     accessorKey: 'invoice.title',
     header: 'Fatura',
     cell: ({ row }) => row.original.invoice?.title || 'Sem título'
+  },
+  {
+    accessorKey: 'purchase_date',
+    header: 'Data da Compra',
+    cell: ({ row }) => row.original.purchase_date
   },
   {
     accessorKey: 'title',
@@ -123,19 +126,14 @@ const columns: TableColumn<DebtResponse>[] = [
     cell: ({ row }) => `R$${row.original.amount.toFixed(2)}`
   },
   {
-    accessorKey: 'purchase_date',
-    header: 'Data da Compra',
-    cell: ({ row }) => row.original.purchase_date
+    accessorKey: 'category',
+    header: 'Categoria',
+    cell: ({ row }) => row.original.category?.name || 'Sem categoria'
   },
   {
     accessorKey: 'due_date',
     header: 'Data de Vencimento',
     cell: ({ row }) => row.original.due_date || 'Sem vencimento'
-  },
-  {
-    accessorKey: 'category',
-    header: 'Categoria',
-    cell: ({ row }) => row.original.category?.name || 'Sem categoria'
   },
   {
     accessorKey: 'status',
