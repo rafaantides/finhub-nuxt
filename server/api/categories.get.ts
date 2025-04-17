@@ -1,18 +1,16 @@
-import type { ApiResponse, Debt } from '~/types'
+import type { ApiResponse, Category } from '~/types'
 
 export default defineEventHandler(
-  async (event): Promise<ApiResponse<Debt[]>> => {
+  async (event): Promise<ApiResponse<Category[]>> => {
     const config = useRuntimeConfig()
-    const { page, page_size, order_by, order_direction } = getQuery(event)
+    const { page, page_size } = getQuery(event)
 
     try {
-      const response = await $fetch.raw<Debt[]>('/debts', {
+      const response = await $fetch.raw<Category[]>('/categories', {
         baseURL: config.apiBaseUrl,
         query: {
           page,
-          page_size,
-          order_by,
-          order_direction
+          page_size
         }
       })
 

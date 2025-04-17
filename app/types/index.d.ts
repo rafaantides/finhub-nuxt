@@ -109,3 +109,13 @@ export interface InvoiceApiResponse {
   data: InvoiceResponse[]
   total: number
 }
+
+// TODO: juntar os tipos
+export interface Category {
+  id: string
+  name: string
+}
+export interface PaymentStatus {
+  id: string
+  name: string
+}

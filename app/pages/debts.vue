@@ -4,8 +4,6 @@ import type { Row } from '@tanstack/table-core'
 import { upperFirst } from 'scule'
 import type { ApiResponse, Debt } from '~/types'
 
-const config = useRuntimeConfig()
-
 const UButton = resolveComponent('UButton')
 const UBadge = resolveComponent('UBadge')
 const UDropdownMenu = resolveComponent('UDropdownMenu')
@@ -25,18 +23,35 @@ const rowSelection = ref({})
 
 const route = useRoute()
 const router = useRouter()
+const config = useRuntimeConfig()
 
 const pagination = ref({
   pageIndex: Number(route.query.page || 1) - 1,
   pageSize: Number(route.query.page_size || config.public.defaultPageSize)
 })
 
+const currentPage = computed({
+  get: () => pagination.value.pageIndex + 1,
+  set: (val) => (pagination.value.pageIndex = val - 1)
+})
+
+function getQueryStringParam(param: unknown): string | null {
+  return typeof param === 'string' ? param : null
+}
+
+const orderBy = ref<string | null>(getQueryStringParam(route.query.order_by))
+const orderDirection = ref<string | null>(
+  getQueryStringParam(route.query.order_direction)
+)
+
 const query = computed(() => ({
-  page: pagination.value.pageIndex + 1,
-  page_size: pagination.value.pageSize
+  page: currentPage.value,
+  page_size: pagination.value.pageSize,
+  order_by: orderBy.value,
+  order_direction: orderDirection.value
 }))
 
-const { data, status } = useFetch<ApiResponse<Debt[]>>('/api/debts', {
+const { data, status, refresh } = useFetch<ApiResponse<Debt[]>>('/api/debts', {
   query,
   lazy: true
 })
@@ -44,29 +59,48 @@ const { data, status } = useFetch<ApiResponse<Debt[]>>('/api/debts', {
 const debts = computed(() => data.value?.data ?? [])
 const total = computed(() => data.value?.total ?? 0)
 
-watch(
-  () => pagination.value.pageSize,
-  (newSize) => {
+function syncQueryParam(key: string, valueFn: () => number | string) {
+  watch(valueFn, (newValue) => {
     router.replace({
       query: {
         ...route.query,
-        page_size: newSize.toString()
+        [key]: newValue.toString()
       }
     })
-  }
-)
+  })
+}
 
-watch(
-  () => pagination.value.pageIndex,
-  (newPage) => {
-    router.replace({
-      query: {
-        ...route.query,
-        page: (newPage + 1).toString()
-      }
-    })
-  }
-)
+syncQueryParam('page', () => currentPage.value)
+syncQueryParam('page_size', () => pagination.value.pageSize)
+syncQueryParam('order_by', () => orderBy.value ?? '')
+syncQueryParam('order_direction', () => orderDirection.value ?? '')
+
+function renderSortableHeader(label: string, column: any) {
+  const isSorted = orderBy.value === column.id
+  const direction = isSorted ? orderDirection.value : undefined
+
+  return h(UButton, {
+    color: 'neutral',
+    variant: 'ghost',
+    label,
+    icon: isSorted
+      ? direction === 'asc'
+        ? 'i-lucide-arrow-up-narrow-wide'
+        : 'i-lucide-arrow-down-wide-narrow'
+      : 'i-lucide-arrow-up-down',
+    class: '-mx-2.5',
+    onClick: () => {
+      const newDirection =
+        isSorted && orderDirection.value === 'asc' ? 'desc' : 'asc'
+
+      orderBy.value = column.id
+      orderDirection.value = newDirection
+      pagination.value.pageIndex = 0
+
+      refresh()
+    }
+  })
+}
 
 function getRowItems(row: Row<Debt>) {
   return [
@@ -134,37 +168,47 @@ const columns: TableColumn<Debt>[] = [
       })
   },
   {
-    accessorKey: 'invoice.title',
-    header: 'Fatura',
+    accessorKey: 'invoice',
+    header: ({ column }) => renderSortableHeader('Fatura', column),
     cell: ({ row }) => row.original.invoice?.title || 'Sem título'
   },
   {
     accessorKey: 'purchase_date',
-    header: 'Data da Compra',
-    cell: ({ row }) => row.original.purchase_date
+    header: ({ column }) => renderSortableHeader('Data da Compra', column),
+    cell: ({ row }) => {
+      const data = row.original.purchase_date
+      return data
+        ? new Date(data).toLocaleDateString('pt-BR')
+        : 'Sem data de compra'
+    }
   },
   {
     accessorKey: 'title',
-    header: 'Título'
+    header: ({ column }) => renderSortableHeader('Título', column)
   },
   {
     accessorKey: 'amount',
-    header: 'Valor',
+    header: ({ column }) => renderSortableHeader('Valor', column),
     cell: ({ row }) => `R$${row.original.amount.toFixed(2)}`
   },
   {
     accessorKey: 'category',
-    header: 'Categoria',
+    header: ({ column }) => renderSortableHeader('Categoria', column),
     cell: ({ row }) => row.original.category?.name || 'Sem categoria'
   },
   {
     accessorKey: 'due_date',
-    header: 'Data de Vencimento',
-    cell: ({ row }) => row.original.due_date || 'Sem vencimento'
+    header: ({ column }) => renderSortableHeader('Data de Vencimento', column),
+    cell: ({ row }) => {
+      const data = row.original.due_date
+      return data
+        ? new Date(data).toLocaleDateString('pt-BR')
+        : 'Sem data de vencimento'
+    }
   },
   {
     accessorKey: 'status',
-    header: 'Status',
+    header: ({ column }) => renderSortableHeader('Status', column),
     filterFn: 'equals',
     cell: ({ row }) => {
       const color = {
@@ -235,7 +279,7 @@ watch(
         </template>
 
         <template #right>
-          <CustomersAddModal />
+          <DebtsAddModal />
         </template>
       </UDashboardNavbar>
     </template>
@@ -349,10 +393,9 @@ watch(
 
         <div class="flex items-center gap-1.5">
           <UPagination
-            :default-page="pagination.pageIndex + 1"
+            v-model:page="currentPage"
             :items-per-page="pagination.pageSize"
             :total="total"
-            @update:page="(p) => (pagination.pageIndex = p - 1)"
           />
         </div>
       </div>

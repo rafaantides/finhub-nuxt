@@ -3,40 +3,50 @@ defineProps<{
   collapsed?: boolean
 }>()
 
-const teams = ref([{
-  label: 'Nuxt',
-  avatar: {
-    src: 'https://github.com/nuxt.png',
-    alt: 'Nuxt'
+const teams = ref([
+  {
+    label: '#003',
+    avatar: {
+      src: '/pokemon/venusaur.png',
+      alt: 'Venusaur'
+    }
+  },
+  {
+    label: '#002',
+    avatar: {
+      src: '/pokemon/ivysaur.png',
+      alt: 'Ivysaur'
+    }
+  },
+  {
+    label: '#001',
+    avatar: {
+      src: '/pokemon/bulbasaur.png',
+      alt: 'Bulbasaur'
+    }
   }
-}, {
-  label: 'NuxtHub',
-  avatar: {
-    src: 'https://github.com/nuxt-hub.png',
-    alt: 'NuxtHub'
-  }
-}, {
-  label: 'NuxtLabs',
-  avatar: {
-    src: 'https://github.com/nuxtlabs.png',
-    alt: 'NuxtLabs'
-  }
-}])
+])
 const selectedTeam = ref(teams.value[0])
 
 const items = computed(() => {
-  return [teams.value.map(team => ({
-    ...team,
-    onSelect() {
-      selectedTeam.value = team
-    }
-  })), [{
-    label: 'Create team',
-    icon: 'i-lucide-circle-plus'
-  }, {
-    label: 'Manage teams',
-    icon: 'i-lucide-cog'
-  }]]
+  return [
+    teams.value.map((team) => ({
+      ...team,
+      onSelect() {
+        selectedTeam.value = team
+      }
+    })),
+    [
+      {
+        label: 'Create team',
+        icon: 'i-lucide-circle-plus'
+      },
+      {
+        label: 'Manage teams',
+        icon: 'i-lucide-cog'
+      }
+    ]
+  ]
 })
 </script>
 
@@ -44,7 +54,9 @@ const items = computed(() => {
   <UDropdownMenu
     :items="items"
     :content="{ align: 'center', collisionPadding: 12 }"
-    :ui="{ content: collapsed ? 'w-40' : 'w-(--reka-dropdown-menu-trigger-width)' }"
+    :ui="{
+      content: collapsed ? 'w-40' : 'w-(--reka-dropdown-menu-trigger-width)'
+    }"
   >
     <UButton
       v-bind="{
