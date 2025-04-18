@@ -15,14 +15,6 @@ const links = [
       }
     },
     {
-      label: 'Faturas',
-      icon: 'i-lucide-receipt-text',
-      to: '/invoices',
-      onSelect: () => {
-        open.value = false
-      }
-    },
-    {
       label: 'Débitos',
       icon: 'i-lucide-credit-card',
       to: '/debts',

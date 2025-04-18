@@ -9,6 +9,9 @@ export default withNuxt({
     '@typescript-eslint/no-explicit-any': 'off',
     '@stylistic/arrow-parens': ['error', 'always'],
     '@stylistic/operator-linebreak': 'off',
-    '@stylistic/member-delimiter-style': 'off'
+    '@stylistic/member-delimiter-style': 'off',
+    // TODO: depois rever isso
+    'vue/operator-linebreak': 'off',
+    'vue/html-indent': 'off'
   }
 })
