@@ -70,7 +70,7 @@ export interface Debt {
 
   status: {
     id: string
-    name: 'paid' | 'overdue' | 'pending'
+    name: string
   }
 
   invoice?: {
@@ -101,7 +101,7 @@ export interface InvoiceResponse {
 
   status: {
     id: string
-    name: 'paid' | 'overdue' | 'pending'
+    name: string
   }
 }
 

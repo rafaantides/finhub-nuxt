@@ -1,4 +1,4 @@
-import { syncQueryParam } from './syncQueryParam'
+import { syncQueryParam } from '../utils/syncQueryParam'
 import { useRoute, useRouter, useRuntimeConfig } from '#imports'
 import type { ApiResponse } from '~/types'
 
