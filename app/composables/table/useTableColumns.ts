@@ -4,7 +4,7 @@ import type { TableColumn } from '@nuxt/ui'
 import type { ColumnConfig } from './columns-config'
 import { renderSortableHeader } from '~/utils/renderSortableHeader'
 
-export function useTableColumns<T>(
+export function useTableColumns(
   config: ColumnConfig[],
   orderBy: { value: string | null },
   orderDirection: { value: string | null },
@@ -17,8 +17,8 @@ export function useTableColumns<T>(
     UBadge: any
     UDropdownMenu: any
   }
-): TableColumn<T>[] {
-  const columns: TableColumn<T>[] = [
+): TableColumn<unknown>[] {
+  const columns: TableColumn<unknown>[] = [
     {
       id: 'select',
       header: ({ table }) =>
@@ -39,7 +39,7 @@ export function useTableColumns<T>(
         })
     },
     ...config.map((col) => {
-      const base: TableColumn<T> = {
+      const base: TableColumn<unknown> = {
         accessorKey: col.key,
         header: ({ column }) =>
           col.sortable

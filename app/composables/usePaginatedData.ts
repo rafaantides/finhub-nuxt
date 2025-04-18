@@ -2,7 +2,7 @@ import { syncQueryParam } from '../utils/syncQueryParam'
 import { useRoute, useRouter, useRuntimeConfig } from '#imports'
 import type { ApiResponse } from '~/types'
 
-export function usePaginatedData<T>(endpoint: string) {
+export function usePaginatedData(endpoint: string) {
   const route = useRoute()
   const router = useRouter()
   const config = useRuntimeConfig()
@@ -29,7 +29,7 @@ export function usePaginatedData<T>(endpoint: string) {
     order_direction: orderDirection.value
   }))
 
-  const { data, refresh, status } = useFetch<ApiResponse<T[]>>(
+  const { data, refresh, status } = useFetch<ApiResponse<unknown[]>>(
     `/api/${endpoint}`,
     {
       query,

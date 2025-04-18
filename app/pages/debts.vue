@@ -2,7 +2,6 @@
 import type { Column } from '@tanstack/table-core'
 import { upperFirst } from 'scule'
 import { usePaginatedData } from '~/composables/usePaginatedData'
-import type { Debt } from '~/types'
 import { useTableColumns } from '~/composables/table/useTableColumns'
 import {
   debtColumnsConfig,
@@ -31,9 +30,9 @@ const {
   orderBy,
   orderDirection,
   refresh
-} = usePaginatedData<Debt>('debts')
+} = usePaginatedData('debts')
 
-const columns = useTableColumns<Debt>(
+const columns = useTableColumns(
   debtColumnsConfig,
   orderBy,
   orderDirection,

@@ -10,7 +10,12 @@ export interface ColumnConfig {
 }
 
 export const debtColumnsConfig: ColumnConfig[] = [
-  { key: 'invoice', label: 'Fatura', sortable: true },
+  {
+    key: 'invoice',
+    label: 'Fatura',
+    sortable: true,
+    nestedKey: 'invoice.title'
+  },
   {
     key: 'purchase_date',
     label: 'Data da Compra',
