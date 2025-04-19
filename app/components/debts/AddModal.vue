@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import * as z from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
-import type { ApiResponse, Category, PaymentStatus } from '~/types'
+import type { ApiResponse, Category, PaymentStatus } from '~/types/api'
 
 const schema = z.object({
   title: z.string().min(1, 'Title is required'),

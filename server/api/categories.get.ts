@@ -1,4 +1,4 @@
-import type { ApiResponse, Category } from '~/types'
+import type { ApiResponse, Category } from '~/types/api'
 
 export default defineEventHandler(
   async (event): Promise<ApiResponse<Category[]>> => {
