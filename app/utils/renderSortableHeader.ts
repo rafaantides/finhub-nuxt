@@ -2,7 +2,6 @@ function renderSortableHeader(
   columnName: string,
   orderBy: { value: string | null },
   orderDirection: { value: string | null },
-  pagination: { value: { pageIndex: number; pageSize: number } },
   refresh: () => void,
   column: { id: string }
 ) {
@@ -25,7 +24,6 @@ function renderSortableHeader(
 
       orderBy.value = column.id
       orderDirection.value = newDirection
-      pagination.value.pageIndex = 0
 
       refresh()
     }

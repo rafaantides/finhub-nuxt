@@ -8,7 +8,6 @@ export function useTableColumns(
   config: ColumnConfig[],
   orderBy: { value: string | null },
   orderDirection: { value: string | null },
-  pagination: any,
   refresh: () => void,
   getRowItems: (row: any) => any[],
   components: {
@@ -49,7 +48,6 @@ export function useTableColumns(
                   col.label,
                   orderBy,
                   orderDirection,
-                  pagination,
                   refresh,
                   column
                 )

@@ -16,7 +16,3 @@ export function toSelectOptions<T extends { id: string; name: string }>(
     })) ?? []
   )
 }
-
-export function getQueryStringParam(param: unknown): string | null {
-  return typeof param === 'string' ? param : null
-}

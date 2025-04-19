@@ -19,8 +19,8 @@ const {
   data,
   total,
   status,
-  pagination,
   currentPage,
+  pageSize,
   orderBy,
   orderDirection,
   refresh
@@ -30,7 +30,6 @@ const columns = useTableColumns(
   debtColumnsConfig,
   orderBy,
   orderDirection,
-  pagination,
   refresh,
   debtGetRowItems,
   components
@@ -50,8 +49,8 @@ const columns = useTableColumns(
       :data="data"
       :columns="columns"
       :loading="status === 'pending'"
-      :pagination="pagination"
       :current-page="currentPage"
+      :page-size="pageSize"
       :total="total"
       @update:current-page="(val) => (currentPage = val)"
     />

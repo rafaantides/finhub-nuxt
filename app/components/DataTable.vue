@@ -8,13 +8,13 @@ const props = defineProps<{
   data: any[]
   columns: Column<any, unknown>[]
   loading: boolean
-  pagination: any
   currentPage: number
+  pageSize: number
   total: number
   // statusFilter?: string
 }>()
 
-const emit = defineEmits(['update:pagination', 'update:currentPage'])
+const emit = defineEmits(['update:currentPage'])
 
 // TODO: ralvez mover daqui
 const statusFilter = ref('all')
@@ -22,13 +22,23 @@ const rowSelection = ref({})
 const columnVisibility = ref()
 const columnFilters = ref([])
 
+const pagination = ref({
+  pageIndex: props.currentPage - 1,
+  pageSize: props.pageSize
+})
+
 // Criando cópias locais reativas das props com dois-way sync
-const localPagination = ref(props.pagination)
 const localCurrentPage = ref(props.currentPage)
 
 // Emitir quando mudar
-watch(localPagination, (val) => emit('update:pagination', val))
 watch(localCurrentPage, (val) => emit('update:currentPage', val))
+
+watch(
+  () => props.currentPage,
+  (val) => {
+    localCurrentPage.value = val
+  }
+)
 </script>
 
 <template>
@@ -126,7 +136,7 @@ watch(localCurrentPage, (val) => emit('update:currentPage', val))
         v-model:column-filters="columnFilters"
         v-model:column-visibility="columnVisibility"
         v-model:row-selection="rowSelection"
-        v-model:pagination="localPagination"
+        v-model:pagination="pagination"
         class="shrink-0"
         :data="data"
         :columns="columns"
@@ -153,7 +163,7 @@ watch(localCurrentPage, (val) => emit('update:currentPage', val))
         <div class="flex items-center gap-1.5">
           <UPagination
             v-model:page="localCurrentPage"
-            :items-per-page="localPagination.pageSize"
+            :items-per-page="props.pageSize"
             :total="total"
           />
         </div>
