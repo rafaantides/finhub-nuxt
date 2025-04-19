@@ -1,4 +1,3 @@
-import { syncQueryParam } from '../utils/syncQueryParam'
 import { useRoute, useRouter, useRuntimeConfig } from '#imports'
 import type { ApiResponse } from '~/types'
 
@@ -32,14 +31,28 @@ export function usePaginatedData(endpoint: string) {
   const items = computed(() => data.value?.data ?? [])
   const total = computed(() => data.value?.total ?? 0)
 
+  const updateQueryParams = () => {
+    const params: Record<string, any> = {}
+
+    // Adiciona os parâmetros somente se houver valor
+    if (currentPage.value) params.page = currentPage.value
+    if (pageSize.value !== config.public.defaultPageSize)
+      params.page_size = pageSize.value
+    if (orderBy.value) params.order_by = orderBy.value
+    if (orderDirection.value) params.order_direction = orderDirection.value
+
+    // Atualiza a URL somente se houver mudanças nos parâmetros
+    if (Object.keys(params).length > 0) {
+      router.replace({ query: params })
+    }
+  }
+
   watch([orderBy, orderDirection], () => {
     currentPage.value = 1
+    updateQueryParams()
   })
 
-  syncQueryParam('order_by', route, router, () => orderBy.value)
-  syncQueryParam('order_direction', route, router, () => orderDirection.value)
-  syncQueryParam('page', route, router, () => currentPage.value)
-  syncQueryParam('page_size', route, router, () => pageSize.value)
+  watch([currentPage, pageSize, orderBy, orderDirection], updateQueryParams)
 
   return {
     data: items,

@@ -2,7 +2,6 @@
 import { h } from 'vue'
 import type { TableColumn } from '@nuxt/ui'
 import type { ColumnConfig } from './columns-config'
-import { renderSortableHeader } from '~/utils/renderSortableHeader'
 
 export function useTableColumns(
   config: ColumnConfig[],
@@ -42,16 +41,28 @@ export function useTableColumns(
         accessorKey: col.key,
         header: ({ column }) =>
           col.sortable
-            ? h(
-                components.UButton,
-                renderSortableHeader(
-                  col.label,
-                  orderBy,
-                  orderDirection,
-                  refresh,
-                  column
-                )
-              )
+            ? h(components.UButton, {
+                color: 'neutral',
+                variant: 'ghost',
+                label: col.label,
+                icon:
+                  orderBy.value === column.id
+                    ? orderDirection.value === 'asc'
+                      ? 'i-lucide-arrow-up-narrow-wide'
+                      : 'i-lucide-arrow-down-wide-narrow'
+                    : 'i-lucide-arrow-up-down',
+                class: '-mx-2.5',
+                onClick: () => {
+                  const isSorted = orderBy.value === column.id
+                  const newDirection =
+                    isSorted && orderDirection.value === 'asc' ? 'desc' : 'asc'
+
+                  orderBy.value = column.id
+                  orderDirection.value = newDirection
+
+                  refresh()
+                }
+              })
             : col.label,
         cell: ({ row }) => {
           const original = row.original as any
