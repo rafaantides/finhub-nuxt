@@ -32,7 +32,8 @@ export function usePaginatedData(endpoint: string) {
     if (error.value) {
       showError({
         statusCode: error.value.statusCode || 500,
-        statusMessage: error.value.data.data || 'Erro ao carregar dados'
+        statusMessage: error.value.statusMessage || 'Erro interno',
+        data: error.value.data.data || null
       })
     }
   })

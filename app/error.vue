@@ -1,13 +1,39 @@
 <script setup lang="ts">
 import type { NuxtError } from '#app'
 
-defineProps<{
+const props = defineProps<{
   error: NuxtError
 }>()
 
+const statusMessage = (
+  props.error.statusMessage?.split(':')[0] ?? 'Error occurred'
+).trim()
+
+let details = 'An error occurred'
+
+try {
+  const data =
+    typeof props.error.data === 'string'
+      ? JSON.parse(props.error.data)
+      : props.error.data
+
+  if (data?.path) {
+    details = data.path
+  } else if (typeof data === 'string') {
+    details = data
+  } else if (typeof data === 'object') {
+    details = JSON.stringify(data)
+  }
+} catch {
+  // Se der erro no JSON.parse, assume string simples
+  details = String(props.error.data || 'An error occurred')
+}
+
+const statusCode = props.error.statusCode || 500
+
 useSeoMeta({
-  title: 'Page not found',
-  description: 'We are sorry but this page could not be found.'
+  title: `${statusCode} - ${statusMessage}`,
+  description: details
 })
 
 useHead({
@@ -19,6 +45,12 @@ useHead({
 
 <template>
   <UApp>
-    <UError :error="error" />
+    <UError
+      :error="{
+        statusCode,
+        statusMessage,
+        message: details
+      }"
+    />
   </UApp>
 </template>
