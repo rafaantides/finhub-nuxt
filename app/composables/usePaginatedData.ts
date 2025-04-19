@@ -12,12 +12,14 @@ export function usePaginatedData(endpoint: string) {
   )
   const orderBy = ref(route.query.order_by?.toString() ?? null)
   const orderDirection = ref(route.query.order_direction?.toString() ?? null)
+  const search = ref(route.query.search?.toString() ?? null)
 
   const query = computed(() => ({
     page: currentPage.value,
     page_size: pageSize.value,
     order_by: orderBy.value,
-    order_direction: orderDirection.value
+    order_direction: orderDirection.value,
+    search: search.value
   }))
 
   const { data, refresh, status, error } = useFetch<ApiResponse<unknown[]>>(
@@ -41,14 +43,30 @@ export function usePaginatedData(endpoint: string) {
   const items = computed(() => data.value?.data ?? [])
   const total = computed(() => data.value?.total ?? 0)
 
-  watch([orderBy, orderDirection], () => {
-    currentPage.value = 1
-    updateQueryParams(router, currentPage, pageSize, orderBy, orderDirection)
-  })
+  watch(
+    [orderBy, orderDirection, search, currentPage, pageSize],
+    (
+      [newOrderBy, newOrderDir, newSearch],
+      [oldOrderBy, oldOrderDir, oldSearch]
+    ) => {
+      if (
+        newOrderBy !== oldOrderBy ||
+        newOrderDir !== oldOrderDir ||
+        newSearch !== oldSearch
+      ) {
+        currentPage.value = 1
+      }
 
-  watch([currentPage, pageSize, orderBy, orderDirection], () => {
-    updateQueryParams(router, currentPage, pageSize, orderBy, orderDirection)
-  })
+      updateQueryParams(
+        router,
+        currentPage,
+        pageSize,
+        orderBy,
+        orderDirection,
+        search
+      )
+    }
+  )
 
   return {
     data: items,
@@ -58,6 +76,7 @@ export function usePaginatedData(endpoint: string) {
     pageSize,
     orderBy,
     orderDirection,
+    search,
     refresh
   }
 }

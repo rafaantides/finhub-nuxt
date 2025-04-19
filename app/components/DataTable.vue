@@ -5,6 +5,7 @@ import { upperFirst } from 'scule'
 
 const currentPage = defineModel<number>('currentPage', { required: true })
 const pageSize = defineModel<number>('pageSize', { required: true })
+const search = defineModel<string | null>('search')
 
 defineProps<{
   data: any[]
@@ -46,10 +47,8 @@ const pagination = ref({
           :model-value="(table?.tableApi?.getColumn('title')?.getFilterValue() as string)"
           class="max-w-sm"
           icon="i-lucide-search"
-          placeholder="Filter title..."
-          @update:model-value="
-            table?.tableApi?.getColumn('title')?.setFilterValue($event)
-          "
+          placeholder="Filter..."
+          @update:model-value="(value) => (search = String(value))"
         />
 
         <div class="flex flex-wrap items-center gap-1.5">

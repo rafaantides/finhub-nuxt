@@ -23,6 +23,7 @@ const {
   pageSize,
   orderBy,
   orderDirection,
+  search,
   refresh
 } = usePaginatedData('debts')
 
@@ -45,11 +46,12 @@ const columns = useTableColumns(
 <template>
   <UDashboardPanel id="debts">
     <DataTable
+      v-model:current-page="currentPage"
+      v-model:page-size="pageSize"
+      v-model:search="search"
       :data="data"
       :columns="columns"
       :loading="status === 'pending'"
-      :current-page="currentPage"
-      :page-size="pageSize"
       :total="total"
       @update:current-page="(val) => (currentPage = val)"
     />

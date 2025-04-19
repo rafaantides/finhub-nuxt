@@ -4,17 +4,11 @@ import type { ApiResponse, Debt } from '~/types/api'
 export default defineEventHandler(
   async (event): Promise<ApiResponse<Debt[]>> => {
     const config = useRuntimeConfig()
-    const { page, page_size, order_by, order_direction } = getQuery(event)
 
     try {
       const response = await $fetch.raw<Debt[]>('/debts', {
         baseURL: config.apiBaseUrl,
-        query: {
-          page,
-          page_size,
-          order_by,
-          order_direction
-        }
+        query: getQuery(event)
       })
 
       const total = response.headers.get('X-Total-Count')

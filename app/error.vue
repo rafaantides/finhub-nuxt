@@ -25,7 +25,6 @@ try {
     details = JSON.stringify(data)
   }
 } catch {
-  // Se der erro no JSON.parse, assume string simples
   details = String(props.error.data || 'An error occurred')
 }
 
