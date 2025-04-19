@@ -1,44 +1,29 @@
 <script setup lang="ts">
+import type { TableColumn } from '@nuxt/ui'
 import type { Column } from '@tanstack/vue-table'
 import { upperFirst } from 'scule'
 
-const table = useTemplateRef('table')
+const currentPage = defineModel<number>('currentPage', { required: true })
+const pageSize = defineModel<number>('pageSize', { required: true })
 
-const props = defineProps<{
+defineProps<{
   data: any[]
-  columns: Column<any, unknown>[]
+  columns: TableColumn<unknown>[]
   loading: boolean
-  currentPage: number
-  pageSize: number
   total: number
-  // statusFilter?: string
 }>()
 
-const emit = defineEmits(['update:currentPage'])
-
-// TODO: ralvez mover daqui
+// TODO: talvez mover daqui
+const table = useTemplateRef('table')
 const statusFilter = ref('all')
 const rowSelection = ref({})
 const columnVisibility = ref()
 const columnFilters = ref([])
 
 const pagination = ref({
-  pageIndex: props.currentPage - 1,
-  pageSize: props.pageSize
+  pageIndex: currentPage.value - 1,
+  pageSize: pageSize.value
 })
-
-// Criando cópias locais reativas das props com dois-way sync
-const localCurrentPage = ref(props.currentPage)
-
-// Emitir quando mudar
-watch(localCurrentPage, (val) => emit('update:currentPage', val))
-
-watch(
-  () => props.currentPage,
-  (val) => {
-    localCurrentPage.value = val
-  }
-)
 </script>
 
 <template>
@@ -162,8 +147,8 @@ watch(
 
         <div class="flex items-center gap-1.5">
           <UPagination
-            v-model:page="localCurrentPage"
-            :items-per-page="props.pageSize"
+            v-model:page="currentPage"
+            :items-per-page="pageSize"
             :total="total"
           />
         </div>

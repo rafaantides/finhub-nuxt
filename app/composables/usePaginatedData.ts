@@ -20,6 +20,7 @@ export function usePaginatedData(endpoint: string) {
     order_direction: orderDirection.value
   }))
 
+  // TODO: tratar o erro
   const { data, refresh, status } = useFetch<ApiResponse<unknown[]>>(
     `/api/${endpoint}`,
     {
@@ -31,6 +32,7 @@ export function usePaginatedData(endpoint: string) {
   const items = computed(() => data.value?.data ?? [])
   const total = computed(() => data.value?.total ?? 0)
 
+  // TODO: mover essa função
   const updateQueryParams = () => {
     const params: Record<string, any> = {}
 

@@ -42,7 +42,6 @@ const columns = useTableColumns(
 // })
 </script>
 
-<!-- TODO: fix reseta a pagina mas n reseta o pagination -->
 <template>
   <UDashboardPanel id="debts">
     <DataTable
