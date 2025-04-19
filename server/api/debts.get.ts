@@ -1,3 +1,4 @@
+import { createError } from 'h3'
 import type { ApiResponse, Debt } from '~/types/api'
 
 export default defineEventHandler(
@@ -21,12 +22,18 @@ export default defineEventHandler(
         data: response._data,
         total: total ? parseInt(total, 10) : null
       }
-      // TODO: revisar os any do codigo
     } catch (error: any) {
-      console.error('Erro ao buscar dados do backend:', error)
-      return {
-        error: error
-      }
+      sendError(
+        event,
+        createError({
+          statusCode: error.response?.status || 500,
+          statusMessage:
+            error.response?._data?.message || error.message || 'Erro interno',
+          data: error.response?._data?.details || 'Erro desconhecido' // Use direto o conteúdo desejado
+        })
+      )
+
+      return { data: [], total: 0 }
     }
   }
 )

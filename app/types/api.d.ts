@@ -1,9 +1,12 @@
-export interface ApiResponse<T> {
-  data?: T | null
-  error?: string | null
+type ApiResponse<T> = {
+  data?: T
   total?: number | null
+  error?: {
+    statusCode: number
+    message: string
+    data?: any
+  }
 }
-
 export interface Category {
   id: string
   name: string

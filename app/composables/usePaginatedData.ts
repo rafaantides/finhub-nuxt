@@ -20,14 +20,22 @@ export function usePaginatedData(endpoint: string) {
     order_direction: orderDirection.value
   }))
 
-  // TODO: tratar o erro
-  const { data, refresh, status } = useFetch<ApiResponse<unknown[]>>(
+  const { data, refresh, status, error } = useFetch<ApiResponse<unknown[]>>(
     `/api/${endpoint}`,
     {
       query,
       lazy: true
     }
   )
+
+  watchEffect(() => {
+    if (error.value) {
+      showError({
+        statusCode: error.value.statusCode || 500,
+        statusMessage: error.value.data.data || 'Erro ao carregar dados'
+      })
+    }
+  })
 
   const items = computed(() => data.value?.data ?? [])
   const total = computed(() => data.value?.total ?? 0)
