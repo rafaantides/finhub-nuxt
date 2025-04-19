@@ -1,5 +1,5 @@
 import { useRoute, useRouter, useRuntimeConfig } from '#imports'
-import type { ApiResponse } from '~/types'
+import type { ApiResponse } from '~/types/api'
 
 export function usePaginatedData(endpoint: string) {
   const route = useRoute()
@@ -32,29 +32,14 @@ export function usePaginatedData(endpoint: string) {
   const items = computed(() => data.value?.data ?? [])
   const total = computed(() => data.value?.total ?? 0)
 
-  // TODO: mover essa função
-  const updateQueryParams = () => {
-    const params: Record<string, any> = {}
-
-    // Adiciona os parâmetros somente se houver valor
-    if (currentPage.value) params.page = currentPage.value
-    if (pageSize.value !== config.public.defaultPageSize)
-      params.page_size = pageSize.value
-    if (orderBy.value) params.order_by = orderBy.value
-    if (orderDirection.value) params.order_direction = orderDirection.value
-
-    // Atualiza a URL somente se houver mudanças nos parâmetros
-    if (Object.keys(params).length > 0) {
-      router.replace({ query: params })
-    }
-  }
-
   watch([orderBy, orderDirection], () => {
     currentPage.value = 1
-    updateQueryParams()
+    updateQueryParams(router, currentPage, pageSize, orderBy, orderDirection)
   })
 
-  watch([currentPage, pageSize, orderBy, orderDirection], updateQueryParams)
+  watch([currentPage, pageSize, orderBy, orderDirection], () => {
+    updateQueryParams(router, currentPage, pageSize, orderBy, orderDirection)
+  })
 
   return {
     data: items,

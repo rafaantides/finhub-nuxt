@@ -4,7 +4,7 @@ import { useTableColumns } from '~/composables/table/useTableColumns'
 import {
   debtColumnsConfig,
   debtGetRowItems
-} from '~/composables/table/columns-config'
+} from '~/composables/table/useDebtTableColumns'
 
 // const statusFilter = ref('all')
 

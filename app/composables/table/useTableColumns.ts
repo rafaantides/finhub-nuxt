@@ -1,7 +1,6 @@
-// composables/table/useTableColumns.ts
 import { h } from 'vue'
 import type { TableColumn } from '@nuxt/ui'
-import type { ColumnConfig } from './columns-config'
+import type { ColumnConfig } from '~/types/table'
 
 export function useTableColumns(
   config: ColumnConfig[],

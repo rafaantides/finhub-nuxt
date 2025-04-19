@@ -1,13 +1,6 @@
 import type { Row } from '@tanstack/table-core'
-import type { Debt } from '~/types'
-
-export interface ColumnConfig {
-  key: string
-  label: string
-  sortable?: boolean
-  type?: 'date' | 'currency' | 'status'
-  nestedKey?: string
-}
+import type { Debt } from '~/types/api'
+import type { ColumnConfig } from '~/types/table'
 
 export const debtColumnsConfig: ColumnConfig[] = [
   {
