@@ -34,7 +34,8 @@ export const debtColumnsConfig: ColumnConfig[] = [
 
 export function debtGetRowItems(
   row: Row<Debt>,
-  showDebtDetails: (debt: Debt) => void
+  showDebtDetails: (debt: Debt) => void,
+  refresh: () => void
 ) {
   const toast = useToast()
 
@@ -75,11 +76,26 @@ export function debtGetRowItems(
       label: 'Delete debt',
       icon: 'i-lucide-trash',
       color: 'error',
-      onSelect() {
-        toast.add({
-          title: 'Debt deleted',
-          description: 'The debt has been deleted.'
-        })
+      async onSelect() {
+        try {
+          await $fetch(`/api/debts/${row.original.id}`, {
+            method: 'DELETE'
+          })
+
+          refresh()
+
+          toast.add({
+            title: 'Débito removido com sucesso',
+            description: `ID: ${row.original.id}`,
+            color: 'success'
+          })
+        } catch (error: any) {
+          toast.add({
+            title: 'Erro ao deletar débito',
+            description: error?.data?.message || error.message,
+            color: 'error'
+          })
+        }
       }
     }
   ]

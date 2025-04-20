@@ -1,20 +1,21 @@
-import { createError } from 'h3'
+import { createError, readBody, getRouterParam } from 'h3'
 import type { ApiResponse, Debt } from '~/types/api'
 
 export default defineEventHandler(
-  async (event): Promise<ApiResponse<Debt[]>> => {
+  async (event): Promise<ApiResponse<Debt | null>> => {
     const config = useRuntimeConfig()
+    const id = getRouterParam(event, 'id')
+    const body = await readBody<Partial<Debt>>(event)
 
     try {
-      const response = await $fetch.raw<Debt[]>('/debts', {
+      const response = await $fetch.raw<Debt>(`/debts/${id}`, {
+        method: 'PUT',
         baseURL: config.apiBaseUrl,
-        query: getQuery(event)
+        body
       })
 
-      const total = response.headers.get('X-Total-Count')
       return {
-        data: response._data,
-        total: total ? parseInt(total, 10) : null
+        data: response._data
       }
     } catch (error: any) {
       sendError(
@@ -27,7 +28,7 @@ export default defineEventHandler(
         })
       )
 
-      return { data: [], total: 0 }
+      return { data: null }
     }
   }
 )

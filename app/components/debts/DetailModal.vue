@@ -5,17 +5,13 @@ import { useToast } from '#imports'
 import type { FormSubmitEvent } from '#ui/types'
 import type { Debt } from '~/types/api'
 
-const emit = defineEmits<{
-  (e: 'save', updated: Debt): void
-  (e: 'update:open', open: boolean): void
-}>()
-
 const open = defineModel<boolean>('open', { required: true })
 
 const props = defineProps<{
   debt: Debt | null
   categories: { label: string; value: string }[]
   statuses: { label: string; value: string }[]
+  refresh: () => void
 }>()
 
 const schema = z.object({
@@ -75,18 +71,31 @@ const dueDate = computed({
 const toast = useToast()
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
-  const updated = {
-    ...(props.debt || {}),
-    ...event.data
+  if (!props.debt?.id) return
+
+  try {
+    const updated = await $fetch<{ data: Debt }>(
+      `/api/debts/${props.debt.id}`,
+      {
+        method: 'PUT',
+        body: event.data
+      }
+    )
+
+    toast.add({
+      title: 'Débito atualizado com sucesso',
+      description: `ID: ${updated.data.id}`,
+      color: 'success'
+    })
+
+    props.refresh()
+  } catch (error: any) {
+    toast.add({
+      title: 'Erro ao atualizar débito',
+      description: error?.data?.message || error.message,
+      color: 'error'
+    })
   }
-
-  toast.add({
-    title: 'Débito atualizado com sucesso',
-    description: `Título: ${updated.title}`,
-    color: 'success'
-  })
-
-  emit('update:open', false)
 }
 </script>
 

@@ -40,10 +40,11 @@ const columns = useTableColumns(
   orderBy,
   orderDirection,
   refresh,
-  (row) => debtGetRowItems(row, showDebtDetails),
+  (row) => debtGetRowItems(row, showDebtDetails, refresh),
   components
 )
 
+// TODO: rever os fecth e os seus retorno q vem a chave data
 const { data: categoryData } = useFetch<ApiResponse<Category[]>>(
   '/api/categories',
   {
@@ -70,6 +71,7 @@ const statuses = computed(() => toSelectOptions(statusesData.value?.data))
     :debt="selectedDebt"
     :categories="categories"
     :statuses="statuses"
+    :refresh="refresh"
     @close="isDebtModalOpen = false"
   />
 
