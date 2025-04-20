@@ -20,7 +20,6 @@ const table = useTemplateRef('table')
 const rowSelection = ref({})
 const columnVisibility = ref()
 const columnFilters = ref([])
-const computedStatuses = computed(() => [{ label: 'All' }, ...props.statuses])
 
 const pagination = ref({
   pageIndex: currentPage.value - 1,
@@ -30,8 +29,8 @@ const pagination = ref({
 
 <template>
   <div class="flex flex-wrap items-center justify-between gap-1.5">
-    <!-- TODO: rever quando da f5 fica vazio aqui -->
     <UInput
+      v-model="search"
       class="max-w-sm"
       icon="i-lucide-search"
       placeholder="Search..."
@@ -59,12 +58,9 @@ const pagination = ref({
 
       <USelect
         v-model="statusId"
-        :items="computedStatuses"
-        :ui="{
-          trailingIcon:
-            'group-data-[state=open]:rotate-180 transition-transform duration-200'
-        }"
+        :items="[{ label: 'All' }, ...props.statuses]"
         placeholder="Filter status"
+        clearable
         class="min-w-28"
       />
       <UDropdownMenu

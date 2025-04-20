@@ -84,7 +84,7 @@ const dueDate = computed({
 </script>
 
 <template>
-  <UModal v-model:open="open" :title="`Débito: ${props.debt?.id ?? ''}`">
+  <UModal v-model:open="open" :title="`ID: ${props.debt?.id ?? ''}`">
     <template #body>
       <UForm :schema="schema" :state="state" class="space-y-4">
         <UFormField label="Título" name="title">
