@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import * as z from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
-import type { ApiResponse, Category, PaymentStatus } from '~/types/api'
+
+defineProps<{
+  categories: { label: string; value: string }[]
+  statuses: { label: string; value: string }[]
+}>()
 
 const schema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -17,29 +21,6 @@ const schema = z.object({
 const open = ref(false)
 
 type Schema = z.output<typeof schema>
-
-const { data: categoryData } = useFetch<ApiResponse<Category[]>>(
-  '/api/categories',
-  {
-    query: {
-      page_size: 100
-    },
-    lazy: true
-  }
-)
-
-const { data: statusesData } = useFetch<ApiResponse<PaymentStatus[]>>(
-  '/api/paymentstatus',
-  {
-    query: {
-      page_size: 100
-    },
-    lazy: true
-  }
-)
-
-const categories = computed(() => toSelectOptions(categoryData.value?.data))
-const statuses = computed(() => toSelectOptions(statusesData.value?.data))
 
 const state = reactive<Partial<Schema>>({
   title: undefined,

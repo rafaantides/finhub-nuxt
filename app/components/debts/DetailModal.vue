@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import * as z from 'zod'
-import type { ApiResponse, Debt, Category, PaymentStatus } from '~/types/api'
+import type { Debt } from '~/types/api'
 
 const open = defineModel<boolean>('open', { required: true })
 
 const props = defineProps<{
   debt: Debt | null
+  categories: { label: string; value: string }[]
+  statuses: { label: string; value: string }[]
 }>()
 
 const schema = z.object({
@@ -20,25 +22,6 @@ const schema = z.object({
 })
 
 type Schema = z.output<typeof schema>
-
-const { data: categoryData } = useFetch<ApiResponse<Category[]>>(
-  '/api/categories',
-  {
-    query: { page_size: 100 },
-    lazy: true
-  }
-)
-
-const { data: statusesData } = useFetch<ApiResponse<PaymentStatus[]>>(
-  '/api/paymentstatus',
-  {
-    query: { page_size: 100 },
-    lazy: true
-  }
-)
-
-const categories = computed(() => toSelectOptions(categoryData.value?.data))
-const statuses = computed(() => toSelectOptions(statusesData.value?.data))
 
 const state = reactive<Partial<Schema>>({
   title: undefined,
@@ -116,10 +99,6 @@ const dueDate = computed({
           <UInput v-model="purchaseDate" type="datetime-local" class="w-full" />
         </UFormField>
 
-        <UFormField label="Data de vencimento" name="due_date">
-          <UInput v-model="dueDate" type="date" class="w-full" />
-        </UFormField>
-
         <UFormField label="Categoria" name="category_id">
           <USelect
             v-model="state.category_id"
@@ -127,6 +106,10 @@ const dueDate = computed({
             placeholder="Selecione uma categoria"
             class="w-full"
           />
+        </UFormField>
+
+        <UFormField label="Data de vencimento" name="due_date">
+          <UInput v-model="dueDate" type="date" class="w-full" />
         </UFormField>
 
         <UFormField label="Status" name="status_id">
@@ -137,6 +120,7 @@ const dueDate = computed({
             class="w-full"
           />
         </UFormField>
+
         <div class="flex justify-end gap-2">
           <UButton
             label="Cancelar"

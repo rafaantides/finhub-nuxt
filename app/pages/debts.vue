@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { usePaginatedData } from '~/composables/usePaginatedData'
 import { useTableColumns } from '~/composables/table/useTableColumns'
-import type { Debt } from '~/types/api'
+import type { Debt, ApiResponse, Category, PaymentStatus } from '~/types/api'
 import {
   debtColumnsConfig,
   debtGetRowItems
@@ -42,12 +42,33 @@ const columns = useTableColumns(
   (row) => debtGetRowItems(row, showDebtDetails),
   components
 )
+
+const { data: categoryData } = useFetch<ApiResponse<Category[]>>(
+  '/api/categories',
+  {
+    query: { page_size: 100 },
+    lazy: true
+  }
+)
+
+const { data: statusesData } = useFetch<ApiResponse<PaymentStatus[]>>(
+  '/api/paymentstatus',
+  {
+    query: { page_size: 100 },
+    lazy: true
+  }
+)
+
+const categories = computed(() => toSelectOptions(categoryData.value?.data))
+const statuses = computed(() => toSelectOptions(statusesData.value?.data))
 </script>
 
 <template>
   <DebtsDetailModal
     v-model:open="isDebtModalOpen"
     :debt="selectedDebt"
+    :categories="categories"
+    :statuses="statuses"
     @close="isDebtModalOpen = false"
   />
 
@@ -58,7 +79,7 @@ const columns = useTableColumns(
           <UDashboardSidebarCollapse />
         </template>
         <template #right>
-          <DebtsAddModal />
+          <DebtsAddModal :categories="categories" :statuses="statuses" />
         </template>
       </UDashboardNavbar>
     </template>
