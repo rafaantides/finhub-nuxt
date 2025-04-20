@@ -12,6 +12,7 @@ export default withNuxt({
     '@stylistic/member-delimiter-style': 'off',
     // TODO: depois rever isso
     'vue/operator-linebreak': 'off',
-    'vue/html-indent': 'off'
+    'vue/html-indent': 'off',
+    'vue/singleline-html-element-content-newline': 'off'
   }
 })

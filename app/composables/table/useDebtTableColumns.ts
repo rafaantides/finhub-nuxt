@@ -32,7 +32,10 @@ export const debtColumnsConfig: ColumnConfig[] = [
   { key: 'status', label: 'Status', sortable: true, type: 'status' }
 ]
 
-export function debtGetRowItems(row: Row<Debt>) {
+export function debtGetRowItems(
+  row: Row<Debt>,
+  showDebtDetails: (debt: Debt) => void
+) {
   const toast = useToast()
 
   return [
@@ -56,7 +59,10 @@ export function debtGetRowItems(row: Row<Debt>) {
     },
     {
       label: 'View debt details',
-      icon: 'i-lucide-list'
+      icon: 'i-lucide-list',
+      onSelect() {
+        showDebtDetails(row.original)
+      }
     },
     {
       label: 'View debt payments',

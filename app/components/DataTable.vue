@@ -14,7 +14,6 @@ defineProps<{
   total: number
 }>()
 
-// TODO: talvez mover daqui
 const table = useTemplateRef('table')
 const statusFilter = ref('all')
 const rowSelection = ref({})

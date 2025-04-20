@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { usePaginatedData } from '~/composables/usePaginatedData'
 import { useTableColumns } from '~/composables/table/useTableColumns'
+import type { Debt } from '~/types/api'
 import {
   debtColumnsConfig,
   debtGetRowItems
@@ -11,6 +12,14 @@ const components = {
   UCheckbox: resolveComponent('UCheckbox') as Component,
   UButton: resolveComponent('UButton') as Component,
   UDropdownMenu: resolveComponent('UDropdownMenu') as Component
+}
+
+const selectedDebt = ref<Debt | null>(null)
+const isDebtModalOpen = ref(false)
+
+const showDebtDetails = (debt: Debt) => {
+  selectedDebt.value = debt
+  isDebtModalOpen.value = true
 }
 
 const {
@@ -30,12 +39,18 @@ const columns = useTableColumns(
   orderBy,
   orderDirection,
   refresh,
-  debtGetRowItems,
+  (row) => debtGetRowItems(row, showDebtDetails),
   components
 )
 </script>
 
 <template>
+  <DebtsDetailModal
+    v-model:open="isDebtModalOpen"
+    :debt="selectedDebt"
+    @close="isDebtModalOpen = false"
+  />
+
   <UDashboardPanel id="debts">
     <template #header>
       <UDashboardNavbar title="Débitos">
@@ -47,6 +62,7 @@ const columns = useTableColumns(
         </template>
       </UDashboardNavbar>
     </template>
+
     <template #body>
       <DataTable
         v-model:current-page="currentPage"
