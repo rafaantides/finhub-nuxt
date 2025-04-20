@@ -31,6 +31,7 @@ const {
   orderBy,
   orderDirection,
   search,
+  statusId,
   refresh
 } = usePaginatedData('debts')
 
@@ -89,10 +90,12 @@ const statuses = computed(() => toSelectOptions(statusesData.value?.data))
         v-model:current-page="currentPage"
         v-model:page-size="pageSize"
         v-model:search="search"
+        v-model:status-id="statusId"
         :data="data"
         :columns="columns"
         :loading="status === 'pending'"
         :total="total"
+        :statuses="statuses"
         @update:current-page="(val) => (currentPage = val)"
       />
     </template>

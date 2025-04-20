@@ -1,3 +1,5 @@
+import { upperFirst } from 'scule'
+
 export function randomInt(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min
 }
@@ -11,7 +13,7 @@ export function toSelectOptions<T extends { id: string; name: string }>(
 ) {
   return (
     items?.map((item) => ({
-      label: item.name,
+      label: upperFirst(item.name),
       value: item.id
     })) ?? []
   )

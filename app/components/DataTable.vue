@@ -6,19 +6,22 @@ import { upperFirst } from 'scule'
 const currentPage = defineModel<number>('currentPage', { required: true })
 const pageSize = defineModel<number>('pageSize', { required: true })
 const search = defineModel<string | null>('search')
+const statusId = defineModel<string>('statusId')
 
-defineProps<{
+const props = defineProps<{
   data: any[]
   columns: TableColumn<unknown>[]
   loading: boolean
   total: number
+  statuses: { label: string; value: string }[]
 }>()
 
 const table = useTemplateRef('table')
-const statusFilter = ref('all')
 const rowSelection = ref({})
 const columnVisibility = ref()
 const columnFilters = ref([])
+
+const computedStatuses = computed(() => [{ label: 'All' }, ...props.statuses])
 
 const pagination = ref({
   pageIndex: currentPage.value - 1,
@@ -28,11 +31,11 @@ const pagination = ref({
 
 <template>
   <div class="flex flex-wrap items-center justify-between gap-1.5">
+    <!-- TODO: rever quando da f5 fica vazio aqui -->
     <UInput
-      :model-value="(table?.tableApi?.getColumn('title')?.getFilterValue() as string)"
       class="max-w-sm"
       icon="i-lucide-search"
-      placeholder="Filter..."
+      placeholder="Search..."
       @update:model-value="(value) => (search = String(value))"
     />
 
@@ -56,13 +59,8 @@ const pagination = ref({
       </CustomersDeleteModal>
 
       <USelect
-        v-model="statusFilter"
-        :items="[
-          { label: 'All', value: 'all' },
-          { label: 'Subscribed', value: 'subscribed' },
-          { label: 'Unsubscribed', value: 'unsubscribed' },
-          { label: 'Bounced', value: 'bounced' }
-        ]"
+        v-model="statusId"
+        :items="computedStatuses"
         :ui="{
           trailingIcon:
             'group-data-[state=open]:rotate-180 transition-transform duration-200'
@@ -121,10 +119,19 @@ const pagination = ref({
     class="flex items-center justify-between gap-3 border-t border-(--ui-border) pt-4 mt-auto"
   >
     <div class="text-sm text-(--ui-text-muted)">
-      {{ table?.tableApi?.getFilteredSelectedRowModel().rows.length || 0 }}
-      of
-      {{ table?.tableApi?.getFilteredRowModel().rows.length || 0 }}
-      row(s) selected.
+      <div class="flex items-center gap-2">
+        <span class="text-sm text-(--ui-text-muted)">Itens por página</span>
+        <USelect
+          v-model="pageSize"
+          :items="[
+            { label: '10', value: 10 },
+            { label: '25', value: 25 },
+            { label: '50', value: 50 },
+            { label: '100', value: 100 }
+          ]"
+          class="min-w-24"
+        />
+      </div>
     </div>
 
     <div class="flex items-center gap-1.5">
