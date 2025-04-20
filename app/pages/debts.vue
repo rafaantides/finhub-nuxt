@@ -96,6 +96,7 @@ const statuses = computed(() => toSelectOptions(statusesData.value?.data))
         :loading="status === 'pending'"
         :total="total"
         :statuses="statuses"
+        :column-config="debtColumnsConfig"
         @update:current-page="(val) => (currentPage = val)"
       />
     </template>

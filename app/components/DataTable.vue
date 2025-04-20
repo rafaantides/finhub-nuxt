@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { TableColumn } from '@nuxt/ui'
-import type { Column } from '@tanstack/vue-table'
-import { upperFirst } from 'scule'
+import type { ColumnConfig } from '~/types/table'
 
 const currentPage = defineModel<number>('currentPage', { required: true })
 const pageSize = defineModel<number>('pageSize', { required: true })
@@ -14,13 +13,13 @@ const props = defineProps<{
   loading: boolean
   total: number
   statuses: { label: string; value: string }[]
+  columnConfig: ColumnConfig[]
 }>()
 
 const table = useTemplateRef('table')
 const rowSelection = ref({})
 const columnVisibility = ref()
 const columnFilters = ref([])
-
 const computedStatuses = computed(() => [{ label: 'All' }, ...props.statuses])
 
 const pagination = ref({
@@ -70,20 +69,22 @@ const pagination = ref({
       />
       <UDropdownMenu
         :items="
-          table?.tableApi
-            ?.getAllColumns()
-            .filter((column: Column<any, unknown>) => column.getCanHide())
-            .map((column: Column<any, unknown>) => ({
-              label: upperFirst(column.id),
-              type: 'checkbox' as const,
-              checked: column.getIsVisible(),
-              onUpdateChecked(checked: boolean) {
-                table?.tableApi?.getColumn(column.id)?.toggleVisibility(!!checked)
-              },
-              onSelect(e?: Event) {
-                e?.preventDefault()
+          props.columnConfig
+            .filter((col) => table?.tableApi?.getColumn(col.key)?.getCanHide())
+            .map((col) => {
+              const columnApi = table?.tableApi?.getColumn(col.key)
+              return {
+                label: col.label,
+                type: 'checkbox' as const,
+                checked: columnApi?.getIsVisible() ?? true,
+                onUpdateChecked(checked: boolean) {
+                  columnApi?.toggleVisibility(checked)
+                },
+                onSelect(e?: Event) {
+                  e?.preventDefault()
+                }
               }
-            }))
+            })
         "
         :content="{ align: 'end' }"
       >
