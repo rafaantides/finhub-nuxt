@@ -74,7 +74,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
   if (!props.debt?.id) return
 
   try {
-    const updated = await $fetch<{ data: Debt }>(
+    const { data } = await $fetch<{ data: Debt }>(
       `/api/debts/${props.debt.id}`,
       {
         method: 'PUT',
@@ -84,7 +84,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
     toast.add({
       title: 'Débito atualizado com sucesso',
-      description: `ID: ${updated.data.id}`,
+      description: `ID: ${data.id}`,
       color: 'success'
     })
 

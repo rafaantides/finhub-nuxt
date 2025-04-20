@@ -44,7 +44,6 @@ const columns = useTableColumns(
   components
 )
 
-// TODO: rever os fecth e os seus retorno q vem a chave data
 const { data: categoryData } = useFetch<ApiResponse<Category[]>>(
   '/api/categories',
   {
@@ -82,7 +81,11 @@ const statuses = computed(() => toSelectOptions(statusesData.value?.data))
           <UDashboardSidebarCollapse />
         </template>
         <template #right>
-          <DebtsAddModal :categories="categories" :statuses="statuses" />
+          <DebtsAddModal
+            :categories="categories"
+            :statuses="statuses"
+            :refresh="refresh"
+          />
         </template>
       </UDashboardNavbar>
     </template>

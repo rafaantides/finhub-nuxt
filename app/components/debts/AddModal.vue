@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import * as z from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
+import type { Debt } from '~/types/api'
 
-defineProps<{
+const props = defineProps<{
   categories: { label: string; value: string }[]
   statuses: { label: string; value: string }[]
+  refresh: () => void
 }>()
 
 const schema = z.object({
@@ -51,19 +53,26 @@ const dueDate = computed({
 
 const toast = useToast()
 async function onSubmit(event: FormSubmitEvent<Schema>) {
-  const { title, purchase_date, amount } = event.data
+  try {
+    const { data } = await $fetch<{ data: Debt }>(`/api/debts`, {
+      method: 'POST',
+      body: event.data
+    })
 
-  const dataFormatada = purchase_date
-    ? new Date(purchase_date).toLocaleDateString('pt-BR')
-    : ''
+    toast.add({
+      title: 'Débito criado com sucesso',
+      description: `ID: ${data.id}`,
+      color: 'success'
+    })
 
-  toast.add({
-    title: 'Débito adicionado com sucesso',
-    description: `Título: ${title}\nValor: R$ ${amount.toFixed(
-      2
-    )}\nData: ${dataFormatada}`,
-    color: 'success'
-  })
+    props.refresh()
+  } catch (error: any) {
+    toast.add({
+      title: 'Erro ao criar o débito',
+      description: error?.data?.message || error.message,
+      color: 'error'
+    })
+  }
   open.value = false
 }
 </script>
