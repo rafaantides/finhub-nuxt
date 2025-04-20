@@ -59,7 +59,7 @@ const pagination = ref({
       <USelect
         v-model="statusId"
         :items="[{ label: 'All' }, ...props.statuses]"
-        placeholder="Filter status"
+        placeholder="Status"
         clearable
         class="min-w-28"
       />

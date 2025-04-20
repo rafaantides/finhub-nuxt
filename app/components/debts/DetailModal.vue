@@ -1,6 +1,14 @@
 <script setup lang="ts">
-import * as z from 'zod'
+import { reactive, computed, watch } from 'vue'
+import { z } from 'zod'
+import { useToast } from '#imports'
+import type { FormSubmitEvent } from '#ui/types'
 import type { Debt } from '~/types/api'
+
+const emit = defineEmits<{
+  (e: 'save', updated: Debt): void
+  (e: 'update:open', open: boolean): void
+}>()
 
 const open = defineModel<boolean>('open', { required: true })
 
@@ -64,29 +72,33 @@ const dueDate = computed({
   }
 })
 
-// const toast = useToast()
-// async function onSubmit(event: FormSubmitEvent<Schema>) {
-//   const updated = {
-//     ...(props.debt || {}),
-//     ...event.data
-//   }
+const toast = useToast()
 
-//   emit('save', updated)
+async function onSubmit(event: FormSubmitEvent<Schema>) {
+  const updated = {
+    ...(props.debt || {}),
+    ...event.data
+  }
 
-//   toast.add({
-//     title: 'Débito atualizado com sucesso',
-//     description: `Título: ${updated.title}`,
-//     color: 'success'
-//   })
+  toast.add({
+    title: 'Débito atualizado com sucesso',
+    description: `Título: ${updated.title}`,
+    color: 'success'
+  })
 
-//   emit('update:open', false)
-// }
+  emit('update:open', false)
+}
 </script>
 
 <template>
   <UModal v-model:open="open" :title="`ID: ${props.debt?.id ?? ''}`">
     <template #body>
-      <UForm :schema="schema" :state="state" class="space-y-4">
+      <UForm
+        :schema="schema"
+        :state="state"
+        class="space-y-4"
+        @submit="onSubmit"
+      >
         <UFormField label="Título" name="title">
           <UInput v-model="state.title" class="w-full" />
         </UFormField>
