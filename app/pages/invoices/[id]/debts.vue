@@ -44,6 +44,8 @@ const columns = useTableColumns(
   components
 )
 
+// TODO: pegar o valor da fatura e colocar informativo no topo do card
+
 const { data: categoryData } = useFetch<ApiResponse<Category[]>>(
   '/api/categories',
   {
@@ -76,7 +78,7 @@ const statuses = computed(() => toSelectOptions(statusesData.value?.data))
 
   <UDashboardPanel id="debts">
     <template #header>
-      <UDashboardNavbar title="Débitos">
+      <UDashboardNavbar :title="`Fatura: ${id}`">
         <template #leading>
           <UDashboardSidebarCollapse />
         </template>

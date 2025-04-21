@@ -57,6 +57,8 @@ const { data: statusesData } = useFetch<ApiResponse<PaymentStatus[]>>(
   }
 )
 
+// TODO: colocar a opçao de editar de qual fatura o debito faz parte
+
 const categories = computed(() => toSelectOptions(categoryData.value?.data))
 const statuses = computed(() => toSelectOptions(statusesData.value?.data))
 </script>
