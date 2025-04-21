@@ -2,7 +2,7 @@ import type { Row } from '@tanstack/table-core'
 import type { Invoice } from '~/types/api'
 import type { ColumnConfig } from '~/types/table'
 
-export const columnsConfig: ColumnConfig[] = [
+export const invoiceColumnsConfig: ColumnConfig[] = [
   {
     key: 'issue_date',
     label: 'Data de Emissão',
@@ -20,7 +20,7 @@ export const columnsConfig: ColumnConfig[] = [
   { key: 'status', label: 'Status', sortable: true, type: 'status' }
 ]
 
-export function getRowItems(
+export function getInvoiceRowItems(
   row: Row<Invoice>,
   showDetails: (invoice: Invoice) => void,
   refresh: () => void

@@ -2,7 +2,7 @@
 import { usePaginatedData } from '~/composables/usePaginatedData'
 import { useTableColumns } from '~/composables/useTableColumns'
 import type { Debt, ApiResponse, Category, PaymentStatus } from '~/types/api'
-import { columnsConfig, getRowItems } from '~/composables/useDebt'
+import { debtColumnsConfig, getDebtRowItems } from '~/composables/useDebt'
 
 const components = {
   UBadge: resolveComponent('UBadge') as Component,
@@ -33,11 +33,11 @@ const {
 } = usePaginatedData('debts')
 
 const columns = useTableColumns(
-  columnsConfig,
+  debtColumnsConfig,
   orderBy,
   orderDirection,
   refresh,
-  (row) => getRowItems(row, showDetails, refresh),
+  (row) => getDebtRowItems(row, showDetails, refresh),
   components
 )
 
@@ -98,7 +98,7 @@ const statuses = computed(() => toSelectOptions(statusesData.value?.data))
         :loading="status === 'pending'"
         :total="total"
         :statuses="statuses"
-        :column-config="columnsConfig"
+        :column-config="debtColumnsConfig"
         @update:current-page="(val) => (currentPage = val)"
       />
     </template>
