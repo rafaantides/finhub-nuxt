@@ -55,7 +55,8 @@ export function getInvoiceRowItems(
     },
     {
       label: 'Ver débitos da fatura',
-      icon: 'i-lucide-credit-card'
+      icon: 'i-lucide-credit-card',
+      to: `/invoices/${row.original.id}/debts`
     },
     {
       type: 'separator'

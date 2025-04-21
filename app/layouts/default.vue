@@ -29,7 +29,8 @@ const links = [
       to: '/invoices',
       onSelect: () => {
         open.value = false
-      }
+      },
+      active: computed(() => route.path.startsWith('/invoices')).value
     },
     {
       label: 'Débitos',
