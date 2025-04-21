@@ -48,6 +48,10 @@ const links = [
       }
     },
     // {
+    //   label: 'Ver débitos da fatura',
+    //   icon: 'i-lucide-wallet'
+    // },
+    // {
     //   label: 'Customers',
     //   icon: 'i-lucide-users',
     //   to: '/customers',

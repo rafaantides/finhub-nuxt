@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { usePaginatedData } from '~/composables/usePaginatedData'
 import { useTableColumns } from '~/composables/useTableColumns'
-import type { Debt, ApiResponse, Category, PaymentStatus } from '~/types/api'
-import { columnsConfig, getRowItems } from '~/composables/useDebt'
+import type { Invoice, ApiResponse, PaymentStatus } from '~/types/api'
+import { columnsConfig, getRowItems } from '~/composables/useInvoice'
 
 const components = {
   UBadge: resolveComponent('UBadge') as Component,
@@ -11,11 +11,11 @@ const components = {
   UDropdownMenu: resolveComponent('UDropdownMenu') as Component
 }
 
-const selectedData = ref<Debt | null>(null)
+const selectedData = ref<Invoice | null>(null)
 const isDetailModalOpen = ref(false)
 
-const showDetails = (debt: Debt) => {
-  selectedData.value = debt
+const showDetails = (invoice: Invoice) => {
+  selectedData.value = invoice
   isDetailModalOpen.value = true
 }
 
@@ -30,7 +30,7 @@ const {
   search,
   statusId,
   refresh
-} = usePaginatedData('debts')
+} = usePaginatedData('invoices')
 
 const columns = useTableColumns(
   columnsConfig,
@@ -41,14 +41,6 @@ const columns = useTableColumns(
   components
 )
 
-const { data: categoryData } = useFetch<ApiResponse<Category[]>>(
-  '/api/categories',
-  {
-    query: { page_size: 100 },
-    lazy: true
-  }
-)
-
 const { data: statusesData } = useFetch<ApiResponse<PaymentStatus[]>>(
   '/api/paymentstatus',
   {
@@ -57,33 +49,30 @@ const { data: statusesData } = useFetch<ApiResponse<PaymentStatus[]>>(
   }
 )
 
-const categories = computed(() => toSelectOptions(categoryData.value?.data))
 const statuses = computed(() => toSelectOptions(statusesData.value?.data))
 </script>
 
 <template>
-  <DebtsDetailModal
+  <!-- <DebtsDetailModal
     v-model:open="isDetailModalOpen"
     :debt="selectedData"
-    :categories="categories"
     :statuses="statuses"
     :refresh="refresh"
     @close="isDetailModalOpen = false"
-  />
+  /> -->
 
-  <UDashboardPanel id="debts">
+  <UDashboardPanel id="invoices">
     <template #header>
-      <UDashboardNavbar title="Débitos">
-        <template #leading>
+      <UDashboardNavbar title="Faturas">
+        <!-- <template #leading>
           <UDashboardSidebarCollapse />
         </template>
         <template #right>
           <DebtsAddModal
-            :categories="categories"
             :statuses="statuses"
             :refresh="refresh"
           />
-        </template>
+        </template> -->
       </UDashboardNavbar>
     </template>
 

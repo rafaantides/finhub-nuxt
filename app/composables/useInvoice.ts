@@ -1,28 +1,16 @@
 import type { Row } from '@tanstack/table-core'
-import type { Debt } from '~/types/api'
+import type { Invoice } from '~/types/api'
 import type { ColumnConfig } from '~/types/table'
 
 export const columnsConfig: ColumnConfig[] = [
   {
-    key: 'invoice',
-    label: 'Fatura',
-    sortable: true,
-    nestedKey: 'invoice.title'
-  },
-  {
-    key: 'purchase_date',
-    label: 'Data da Compra',
+    key: 'issue_date',
+    label: 'Data de Emissão',
     sortable: true,
     type: 'date'
   },
   { key: 'title', label: 'Título', sortable: true },
   { key: 'amount', label: 'Valor', sortable: true, type: 'currency' },
-  {
-    key: 'category',
-    label: 'Categoria',
-    sortable: true,
-    nestedKey: 'category.name'
-  },
   {
     key: 'due_date',
     label: 'Data de Vencimento',
@@ -33,8 +21,8 @@ export const columnsConfig: ColumnConfig[] = [
 ]
 
 export function getRowItems(
-  row: Row<Debt>,
-  showDetails: (debt: Debt) => void,
+  row: Row<Invoice>,
+  showDetails: (invoice: Invoice) => void,
   refresh: () => void
 ) {
   const toast = useToast()
@@ -66,6 +54,10 @@ export function getRowItems(
       }
     },
     {
+      label: 'Ver débitos da fatura',
+      icon: 'i-lucide-credit-card'
+    },
+    {
       type: 'separator'
     },
     {
@@ -81,13 +73,13 @@ export function getRowItems(
           refresh()
 
           toast.add({
-            title: 'Débito removido com sucesso',
+            title: 'Fatura removida com sucesso',
             description: `ID: ${row.original.id}`,
             color: 'success'
           })
         } catch (error: any) {
           toast.add({
-            title: 'Erro ao excluir débito',
+            title: 'Erro ao excluir a fatura',
             description: error?.data?.message || error.message,
             color: 'error'
           })

@@ -1,21 +1,33 @@
-export default defineEventHandler(async (event) => {
-  const query = getQuery(event)
-  const { page = 1, page_size = 10 } = query
+import { createError } from 'h3'
+import type { ApiResponse, Invoice } from '~/types/api'
 
-  const backendUrl = `http://localhost:8080/api/v1/invoices?page=${page}&page_size=${page_size}`
+export default defineEventHandler(
+  async (event): Promise<ApiResponse<Invoice[]>> => {
+    const config = useRuntimeConfig()
 
-  try {
-    const response = await fetch(backendUrl)
-    const data = await response.json()
+    try {
+      const response = await $fetch.raw<Invoice[]>('/invoices', {
+        baseURL: config.apiBaseUrl,
+        query: getQuery(event)
+      })
 
-    const total = response.headers.get('X-Total-Count')
+      const total = response.headers.get('X-Total-Count')
+      return {
+        data: response._data,
+        total: total ? parseInt(total, 10) : null
+      }
+    } catch (error: any) {
+      sendError(
+        event,
+        createError({
+          statusCode: error.response?.status || 500,
+          statusMessage:
+            error.response?._data?.message || error.message || 'Erro interno',
+          data: error.response?._data?.details || 'Erro desconhecido'
+        })
+      )
 
-    return {
-      data,
-      total: total ? parseInt(total, 10) : null
+      return { data: [], total: 0 }
     }
-  } catch (error) {
-    console.error('Erro ao buscar dados do backend:', error)
-    return { error: 'Erro ao buscar dados do backend' }
   }
-})
+)
