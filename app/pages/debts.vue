@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { usePaginatedData } from '~/composables/usePaginatedData'
-import { useTableColumns } from '~/composables/table/useTableColumns'
+import { useTableColumns } from '~/composables/useTableColumns'
 import type { Debt, ApiResponse, Category, PaymentStatus } from '~/types/api'
 import {
   debtColumnsConfig,
   debtGetRowItems
-} from '~/composables/table/useDebtTableColumns'
+} from '~/composables/useDebt'
 
 const components = {
   UBadge: resolveComponent('UBadge') as Component,

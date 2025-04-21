@@ -14,6 +14,23 @@ const links = [
         open.value = false
       }
     },
+    // {
+    //   label: 'Inbox',
+    //   icon: 'i-lucide-inbox',
+    //   to: '/inbox',
+    //   badge: '4',
+    //   onSelect: () => {
+    //     open.value = false
+    //   }
+    // },
+    {
+      label: 'Faturas',
+      icon: 'i-lucide-file-text',
+      to: '/invoices',
+      onSelect: () => {
+        open.value = false
+      }
+    },
     {
       label: 'Débitos',
       icon: 'i-lucide-credit-card',
@@ -23,27 +40,26 @@ const links = [
       }
     },
     {
-      label: 'Inbox',
-      icon: 'i-lucide-inbox',
-      to: '/inbox',
-      badge: '4',
+      label: 'Importação',
+      icon: 'i-lucide-file-input',
+      to: '/upload',
       onSelect: () => {
         open.value = false
       }
     },
-    {
-      label: 'Customers',
-      icon: 'i-lucide-users',
-      to: '/customers',
-      onSelect: () => {
-        open.value = false
-      }
-    },
+    // {
+    //   label: 'Customers',
+    //   icon: 'i-lucide-users',
+    //   to: '/customers',
+    //   onSelect: () => {
+    //     open.value = false
+    //   }
+    // },
     {
       label: 'Settings',
       to: '/settings',
       icon: 'i-lucide-settings',
-      defaultOpen: true,
+      defaultOpen: false,
       children: [
         {
           label: 'General',

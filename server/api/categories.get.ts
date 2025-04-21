@@ -21,10 +21,17 @@ export default defineEventHandler(
       }
       // TODO: revisar os any do codigo
     } catch (error: any) {
-      console.error('Erro ao buscar dados do backend:', error)
-      return {
-        error: error
-      }
+      sendError(
+        event,
+        createError({
+          statusCode: error.response?.status || 500,
+          statusMessage:
+            error.response?._data?.message || error.message || 'Erro interno',
+          data: error.response?._data?.details || 'Erro desconhecido'
+        })
+      )
+
+      return { data: [], total: 0 }
     }
   }
 )

@@ -1,8 +1,8 @@
 import { createError, readBody } from 'h3'
-import type { ApiResponse, Debt } from '~/types/api'
+import type { Debt } from '~/types/api'
 
 export default defineEventHandler(
-  async (event): Promise<ApiResponse<Debt | null>> => {
+  async (event): Promise<{ data: Debt | null }> => {
     const config = useRuntimeConfig()
     const body = await readBody<Partial<Debt>>(event)
 
@@ -14,7 +14,7 @@ export default defineEventHandler(
       })
 
       return {
-        data: response._data
+        data: response._data ?? null
       }
     } catch (error: any) {
       sendError(

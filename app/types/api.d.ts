@@ -1,11 +1,6 @@
 type ApiResponse<T> = {
   data?: T
   total?: number | null
-  error?: {
-    statusCode: number
-    message: string
-    data?: any
-  }
 }
 export interface Category {
   id: string
