@@ -1,10 +1,5 @@
 <script setup lang="ts">
-import {
-  eachDayOfInterval,
-  eachWeekOfInterval,
-  eachMonthOfInterval,
-  format
-} from 'date-fns'
+import { format } from 'date-fns'
 import {
   VisXYContainer,
   VisLine,
@@ -29,30 +24,24 @@ type DataRecord = {
 
 const { width } = useElementSize(cardRef)
 
-// We use `useAsyncData` here to have same random data on the client and server
-const { data } = await useAsyncData<DataRecord[]>(
-  async () => {
-    const dates = (
-      {
-        daily: eachDayOfInterval,
-        weekly: eachWeekOfInterval,
-        monthly: eachMonthOfInterval
-      } as Record<Period, typeof eachDayOfInterval>
-    )[props.period](props.range)
+const data = ref<DataRecord[]>([])
 
-    const min = 1000
-    const max = 10000
+const fetchData = async () => {
+  const { data: response } = await useFetch<{ data: DataRecord[] }>(
+    '/api/debts/summary',
+    {
+      query: {
+        period: props.period,
+        start_date: new Date(props.range.start).toISOString(),
+        end_date: new Date(props.range.end).toISOString()
+      }
+    }
+  )
 
-    return dates.map((date) => ({
-      date,
-      amount: Math.floor(Math.random() * (max - min + 1)) + min
-    }))
-  },
-  {
-    watch: [() => props.period, () => props.range],
-    default: () => []
-  }
-)
+  data.value = response.value?.data || []
+}
+
+watch([() => props.range, () => props.period], fetchData, { immediate: true })
 
 const x = (_: DataRecord, i: number) => i
 const y = (d: DataRecord) => d.amount

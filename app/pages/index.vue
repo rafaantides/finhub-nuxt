@@ -15,7 +15,7 @@ const items = [[{
 }]]
 
 const range = shallowRef<Range>({
-  start: sub(new Date(), { days: 14 }),
+  start: sub(new Date(), { days: 30 }),
   end: new Date()
 })
 const period = ref<Period>('daily')
