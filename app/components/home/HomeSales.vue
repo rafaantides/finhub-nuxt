@@ -1,117 +1,127 @@
 <script setup lang="ts">
-import { h, resolveComponent } from 'vue'
+import { h } from 'vue'
 import type { TableColumn } from '@nuxt/ui'
-import type { Period, Range, Sale } from '~/types'
+import { getCategoryColor } from '~/composables/useDebtSummary'
 
-const props = defineProps<{
-  period: Period
-  range: Range
-}>()
+const data = defineModel<any>('data', { required: true })
 
-const UBadge = resolveComponent('UBadge')
-
-const sampleEmails = [
-  'james.anderson@example.com',
-  'mia.white@example.com',
-  'william.brown@example.com',
-  'emma.davis@example.com',
-  'ethan.harris@example.com'
-]
-
-const { data } = await useAsyncData(
-  'sales',
-  async () => {
-    const sales: Sale[] = []
-    const currentDate = new Date()
-
-    for (let i = 0; i < 5; i++) {
-      const hoursAgo = randomInt(0, 48)
-      const date = new Date(currentDate.getTime() - hoursAgo * 3600000)
-
-      sales.push({
-        id: (4600 - i).toString(),
-        date: date.toISOString(),
-        status: randomFrom(['paid', 'failed', 'refunded']),
-        email: randomFrom(sampleEmails),
-        amount: randomInt(100, 1000)
-      })
-    }
-
-    return sales.sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-    )
-  },
+const columns: TableColumn<{
+  category: string
+  total: number
+  transactions: number
+  average: number
+  percentage: number
+}>[] = [
   {
-    watch: [() => props.period, () => props.range],
-    default: () => []
-  }
-)
-
-const columns: TableColumn<Sale>[] = [
-  {
-    accessorKey: 'id',
-    header: 'ID',
-    cell: ({ row }) => `#${row.getValue('id')}`
-  },
-  {
-    accessorKey: 'date',
-    header: 'Date',
+    accessorKey: 'category',
+    header: () => 'Categoria',
     cell: ({ row }) => {
-      return new Date(row.getValue('date')).toLocaleString('en-US', {
-        day: 'numeric',
-        month: 'short',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false
-      })
+      const category = String(row.getValue('category'))
+      const color = getCategoryColor(category)
+      return h('div', { class: 'flex items-center' }, [
+        h('div', {
+          class: 'w-3 h-2.5 mr-2 rounded-sm',
+          style: {
+            backgroundColor: `${color}50`,
+            borderColor: color,
+            color: color,
+            borderWidth: '1px'
+          }
+        }),
+        category
+      ])
     }
   },
   {
-    accessorKey: 'status',
-    header: 'Status',
+    accessorKey: 'transactions',
+    header: () => h('div', { class: 'text-center' }, 'Transações'),
+    cell: ({ row }) =>
+      h('div', { class: 'text-center' }, row.getValue('transactions'))
+  },
+  {
+    accessorKey: 'average',
+    header: () => h('div', { class: 'text-center' }, 'Média'),
     cell: ({ row }) => {
-      const color = {
-        paid: 'success' as const,
-        failed: 'error' as const,
-        refunded: 'neutral' as const
-      }[row.getValue('status') as string]
-
-      return h(UBadge, { class: 'capitalize', variant: 'subtle', color }, () =>
-        row.getValue('status')
-      )
+      const average = Number(row.getValue('average'))
+      return h('div', { class: 'text-center' }, `R$${average.toFixed(2)}`)
     }
   },
   {
-    accessorKey: 'email',
-    header: 'Email'
+    accessorKey: 'total',
+    header: () => h('div', { class: 'text-center' }, 'Total'),
+    cell: ({ row }) => {
+      const total = Number(row.getValue('total'))
+      return h('div', { class: 'text-center' }, `R$${total.toFixed(2)}`)
+    }
   },
   {
-    accessorKey: 'amount',
-    header: () => h('div', { class: 'text-right' }, 'Amount'),
+    accessorKey: 'percentage',
+    header: () => h('div', { class: 'text-center' }, 'Porcentagem'),
     cell: ({ row }) => {
-      const amount = Number.parseFloat(row.getValue('amount'))
-
-      const formatted = new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'EUR'
-      }).format(amount)
-
-      return h('div', { class: 'text-right font-medium' }, formatted)
+      const percentage = Number(row.getValue('percentage'))
+      return h('div', { class: 'text-center' }, `${percentage.toFixed(2)}%`)
     }
   }
 ]
+
+function processCategories(
+  data: {
+    date: string
+    total: number
+    categories: {
+      category: string
+      total: number
+      transactions: number
+    }[]
+  }[]
+) {
+  const categoryMap = new Map<string, { total: number; transactions: number }>()
+  let totalGeral = 0
+
+  for (const week of data) {
+    totalGeral += week.total
+
+    for (const cat of week.categories) {
+      const current = categoryMap.get(cat.category) || {
+        total: 0,
+        transactions: 0
+      }
+      categoryMap.set(cat.category, {
+        total: current.total + cat.total,
+        transactions: current.transactions + cat.transactions
+      })
+    }
+  }
+
+  const result = []
+  for (const [category, values] of categoryMap.entries()) {
+    const average =
+      values.transactions > 0 ? values.total / values.transactions : 0
+    const percentage = totalGeral > 0 ? (values.total / totalGeral) * 100 : 0
+    result.push({
+      category,
+      total: values.total,
+      transactions: values.transactions,
+      average,
+      percentage
+    })
+  }
+
+  // Ordenar por porcentagem decrescente
+  return result.sort((a, b) => b.percentage - a.percentage)
+}
 </script>
 
 <template>
   <UTable
-    :data="data"
+    :data="processCategories(data)"
     :columns="columns"
     class="shrink-0"
     :ui="{
       base: 'table-fixed border-separate border-spacing-0',
       thead: '[&>tr]:bg-(--ui-bg-elevated)/50 [&>tr]:after:content-none',
       tbody: '[&>tr]:last:[&>td]:border-b-0',
-      th: 'first:rounded-l-[calc(var(--ui-radius)*2)] last:rounded-r-[calc(var(--ui-radius)*2)] border-y border-(--ui-border) first:border-l last:border-r',
+      th: 'py-1 first:rounded-l-[calc(var(--ui-radius)*2)] last:rounded-r-[calc(var(--ui-radius)*2)] border-y border-(--ui-border) first:border-l last:border-r',
       td: 'border-b border-(--ui-border)'
     }"
   />

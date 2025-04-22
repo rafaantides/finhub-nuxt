@@ -52,6 +52,12 @@ export interface Notification {
   date: string
 }
 
+export type DataRecord = {
+  date: Date
+  amount: number
+  [key: string]: Date | string | number
+}
+
 export type Period = 'daily' | 'weekly' | 'monthly'
 
 export interface Range {

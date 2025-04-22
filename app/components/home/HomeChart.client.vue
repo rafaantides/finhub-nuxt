@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { format } from 'date-fns'
 import { upperFirst } from 'scule'
+import { format } from 'date-fns'
 import {
   VisXYContainer,
   VisLine,
@@ -9,103 +9,58 @@ import {
   VisCrosshair,
   VisTooltip
 } from '@unovis/vue'
-import type { Period, Range } from '~/types'
+import type { Period, DataRecord } from '~/types'
+import { getCategoryColor } from '~/composables/useDebtSummary'
 
 const cardRef = useTemplateRef<HTMLElement | null>('cardRef')
+const period = defineModel<Period>('period', { required: true })
 
-const props = defineProps<{
-  period: Period
-  range: Range
-}>()
+const data = defineModel<any>('data', { required: true })
+const sumTotal = defineModel<number>('sum', { required: true })
+const categories = defineModel<string[]>('categories', { required: true })
 
-type DataRecord = {
-  date: Date
-  amount: number
-  [key: string]: Date | string | number
-}
+const chartData = computed(() => {
+  return data.value.map((entry: any) => {
+    const obj: Record<string, number | Date> = {
+      date: new Date(entry.date),
+      total: entry.total
+    }
+
+    entry.categories.forEach((cat: any) => {
+      obj[cat.category] = cat.total
+    })
+
+    return obj
+  })
+})
 
 const { width } = useElementSize(cardRef)
-
-const data = ref<DataRecord[]>([])
-
-const fetchData = async () => {
-  const { data: response } = await useFetch<{ data: DataRecord[] }>(
-    '/api/debts/summary',
-    {
-      query: {
-        period: props.period,
-        start_date: new Date(props.range.start).toISOString(),
-        end_date: new Date(props.range.end).toISOString()
-      }
-    }
-  )
-
-  data.value = response.value?.data || []
-}
-
-watch([() => props.range, () => props.period], fetchData, { immediate: true })
-
-const x = (_: DataRecord, i: number) => i
-const y = (category: string) => (d: DataRecord) => {
-  return d[category] as number
-}
-
-const sumTotal = computed(() =>
-  data.value.reduce((acc: number, item) => acc + (Number(item.total) || 0), 0)
-)
-
-const root = document.documentElement
-const primaryColor = getComputedStyle(root)
-  .getPropertyValue('--ui-primary')
-  .trim()
-
-const categoryColorMap: Record<string, string> = {
-  total: primaryColor,
-  'Assinaturas e Streaming': '#FF6384',
-  'Alimentação e Delivery': '#FF9F40',
-  'Saúde e Bem-estar': '#4BC0C0',
-  'Compras e E-commerce': '#9966FF',
-  Transporte: '#36A2EB',
-  'Vestuario e Estética': '#FFCE56',
-  'Mercado e Conveniência': '#8AC24A',
-  'Cafés e Bares': '#CD853F',
-  'Eventos e Lazer': '#BA55D3'
-}
-
-const formatNumber = new Intl.NumberFormat('en', {
-  style: 'currency',
-  currency: 'USD',
-  maximumFractionDigits: 0
-}).format
 
 const formatDate = (date: Date): string => {
   return {
     daily: format(date, 'd MMM'),
     weekly: format(date, 'd MMM'),
     monthly: format(date, 'MMM yyy')
-  }[props.period]
+  }[period.value]
 }
 
+const x = (_: DataRecord, i: number) => i
+const y = (category: string) => (d: DataRecord) => {
+  return d[category] as number
+}
+
+// TODO: esta sempre um dia atras doq vem do back
 const xTicks = (i: number) => {
   if (i === 0 || i === data.value.length - 1 || !data.value[i]) {
     return ''
   }
-
   return formatDate(data.value[i].date)
 }
-
-const categories = computed(() => {
-  const allCategories = new Set<string>([])
-  data.value.forEach((item) => {
-    Object.keys(item).forEach((key) => {
-      if (key !== 'date') {
-        allCategories.add(key)
-      }
-    })
-  })
-
-  return Array.from(allCategories)
-})
+const formatNumber = new Intl.NumberFormat('en', {
+  style: 'currency',
+  currency: 'USD',
+  maximumFractionDigits: 0
+}).format
 
 const tooltip = (d: DataRecord) => {
   let tooltip = `<div class="text-sm font-semibold">${formatDate(d.date)}</div>`
@@ -116,15 +71,12 @@ const tooltip = (d: DataRecord) => {
       category,
       value: Number(d[category])
     }))
-    .sort((a, b) => {
-      return b.value - a.value
-    })
+    .sort((a, b) => b.value - a.value)
 
   categoryValues.forEach(({ category, value }) => {
+    const color = getCategoryColor(category)
     tooltip += `<div class="flex items-center mt-1">
-      <div class="w-3 h-3 rounded-full mr-2" style="background-color: ${
-        categoryColorMap[category] ?? '#FFFFFF'
-      }"></div>
+      <div class="w-3 h-2.5 mr-2 rounded-sm" style="background-color: ${color}50; border-color: ${color}; color: ${color}; border-width: 1px;"></div>
       <span>${upperFirst(category)}: ${formatNumber(value)}</span>
     </div>`
   })
@@ -145,7 +97,7 @@ const tooltip = (d: DataRecord) => {
     </template>
 
     <VisXYContainer
-      :data="data"
+      :data="chartData"
       :padding="{ top: 40 }"
       class="h-96"
       :width="width"
@@ -154,18 +106,17 @@ const tooltip = (d: DataRecord) => {
         <VisLine
           :x="x"
           :y="y(category)"
-          :color="categoryColorMap[category] ?? '#FFFFFF'"
+          :color="getCategoryColor(category)"
           :stroke-width="category === 'total' ? 2 : 1"
           :stroke-dasharray="0"
         />
         <VisArea
           :x="x"
           :y="y(category)"
-          :color="categoryColorMap[category] ?? '#FFFFFF'"
+          :color="getCategoryColor(category)"
           :opacity="0.1"
         />
       </template>
-      <VisArea :x="x" :y="y" color="var(--ui-primary)" :opacity="0.1" />
 
       <VisAxis type="x" :x="x" :tick-format="xTicks" />
 

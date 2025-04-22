@@ -48,7 +48,7 @@ const { data: statusesData } = useFetch<ApiResponse<PaymentStatus[]>>(
     lazy: true
   }
 )
-
+// TODO oq sao todos esses comentarios?
 const statuses = computed(() => toSelectOptions(statusesData.value?.data))
 </script>
 

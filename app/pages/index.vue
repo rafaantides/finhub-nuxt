@@ -4,21 +4,28 @@ import type { Period, Range } from '~/types'
 
 const { isNotificationsSlideoverOpen } = useDashboard()
 
-const items = [[{
-  label: 'New mail',
-  icon: 'i-lucide-send',
-  to: '/inbox'
-}, {
-  label: 'New customer',
-  icon: 'i-lucide-user-plus',
-  to: '/customers'
-}]]
+const items = [
+  [
+    {
+      label: 'New mail',
+      icon: 'i-lucide-send',
+      to: '/inbox'
+    },
+    {
+      label: 'New customer',
+      icon: 'i-lucide-user-plus',
+      to: '/customers'
+    }
+  ]
+]
 
 const range = shallowRef<Range>({
   start: sub(new Date(), { days: 30 }),
   end: new Date()
 })
 const period = ref<Period>('daily')
+
+const { data, sumTotal, categories } = useDebtSummary(period, range)
 </script>
 
 <template>
@@ -61,8 +68,13 @@ const period = ref<Period>('daily')
 
     <template #body>
       <HomeStats :period="period" :range="range" />
-      <HomeChart :period="period" :range="range" />
-      <HomeSales :period="period" :range="range" />
+      <HomeChart
+        v-model:period="period"
+        v-model:data="data"
+        v-model:sum="sumTotal"
+        v-model:categories="categories"
+      />
+      <HomeSales v-model:data="data" />
     </template>
   </UDashboardPanel>
 </template>
