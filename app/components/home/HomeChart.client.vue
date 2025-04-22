@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { format } from 'date-fns'
+import { upperFirst } from 'scule'
 import {
   VisXYContainer,
   VisLine,
@@ -20,6 +21,7 @@ const props = defineProps<{
 type DataRecord = {
   date: Date
   amount: number
+  [key: string]: Date | string | number
 }
 
 const { width } = useElementSize(cardRef)
@@ -44,11 +46,31 @@ const fetchData = async () => {
 watch([() => props.range, () => props.period], fetchData, { immediate: true })
 
 const x = (_: DataRecord, i: number) => i
-const y = (d: DataRecord) => d.amount
+const y = (category: string) => (d: DataRecord) => {
+  return d[category] as number
+}
 
-const total = computed(() =>
-  data.value.reduce((acc: number, { amount }) => acc + amount, 0)
+const sumTotal = computed(() =>
+  data.value.reduce((acc: number, item) => acc + (Number(item.total) || 0), 0)
 )
+
+const root = document.documentElement
+const primaryColor = getComputedStyle(root)
+  .getPropertyValue('--ui-primary')
+  .trim()
+
+const categoryColorMap: Record<string, string> = {
+  total: primaryColor,
+  'Assinaturas e Streaming': '#FF6384',
+  'Alimentação e Delivery': '#FF9F40',
+  'Saúde e Bem-estar': '#4BC0C0',
+  'Compras e E-commerce': '#9966FF',
+  Transporte: '#36A2EB',
+  'Vestuario e Estética': '#FFCE56',
+  'Mercado e Conveniência': '#8AC24A',
+  'Cafés e Bares': '#CD853F',
+  'Eventos e Lazer': '#BA55D3'
+}
 
 const formatNumber = new Intl.NumberFormat('en', {
   style: 'currency',
@@ -72,8 +94,43 @@ const xTicks = (i: number) => {
   return formatDate(data.value[i].date)
 }
 
-const template = (d: DataRecord) =>
-  `${formatDate(d.date)}: ${formatNumber(d.amount)}`
+const categories = computed(() => {
+  const allCategories = new Set<string>([])
+  data.value.forEach((item) => {
+    Object.keys(item).forEach((key) => {
+      if (key !== 'date') {
+        allCategories.add(key)
+      }
+    })
+  })
+
+  return Array.from(allCategories)
+})
+
+const tooltip = (d: DataRecord) => {
+  let tooltip = `<div class="text-sm font-semibold">${formatDate(d.date)}</div>`
+
+  const categoryValues = categories.value
+    .filter((category) => d[category] != null)
+    .map((category) => ({
+      category,
+      value: Number(d[category])
+    }))
+    .sort((a, b) => {
+      return b.value - a.value
+    })
+
+  categoryValues.forEach(({ category, value }) => {
+    tooltip += `<div class="flex items-center mt-1">
+      <div class="w-3 h-3 rounded-full mr-2" style="background-color: ${
+        categoryColorMap[category] ?? '#FFFFFF'
+      }"></div>
+      <span>${upperFirst(category)}: ${formatNumber(value)}</span>
+    </div>`
+  })
+
+  return tooltip
+}
 </script>
 
 <template>
@@ -82,7 +139,7 @@ const template = (d: DataRecord) =>
       <div>
         <p class="text-xs text-(--ui-text-muted) uppercase mb-1.5">Revenue</p>
         <p class="text-3xl text-(--ui-text-highlighted) font-semibold">
-          {{ formatNumber(total) }}
+          {{ formatNumber(sumTotal) }}
         </p>
       </div>
     </template>
@@ -93,12 +150,26 @@ const template = (d: DataRecord) =>
       class="h-96"
       :width="width"
     >
-      <VisLine :x="x" :y="y" color="var(--ui-primary)" />
+      <template v-for="category in categories" :key="category">
+        <VisLine
+          :x="x"
+          :y="y(category)"
+          :color="categoryColorMap[category] ?? '#FFFFFF'"
+          :stroke-width="category === 'total' ? 2 : 1"
+          :stroke-dasharray="0"
+        />
+        <VisArea
+          :x="x"
+          :y="y(category)"
+          :color="categoryColorMap[category] ?? '#FFFFFF'"
+          :opacity="0.1"
+        />
+      </template>
       <VisArea :x="x" :y="y" color="var(--ui-primary)" :opacity="0.1" />
 
       <VisAxis type="x" :x="x" :tick-format="xTicks" />
 
-      <VisCrosshair color="var(--ui-primary)" :template="template" />
+      <VisCrosshair color="var(--ui-primary)" :template="tooltip" />
 
       <VisTooltip />
     </VisXYContainer>
