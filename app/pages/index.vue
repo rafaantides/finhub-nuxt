@@ -26,6 +26,7 @@ const range = shallowRef<Range>({
 const period = ref<Period>('daily')
 
 const { data, sumTotal, categories } = useDebtSummary(period, range)
+const { data: stats } = useDebtStats(period, range)
 </script>
 
 <template>
@@ -67,7 +68,7 @@ const { data, sumTotal, categories } = useDebtSummary(period, range)
     </template>
 
     <template #body>
-      <HomeStats :period="period" :range="range" />
+      <HomeStats v-model:data="stats" :period="period" :range="range" />
       <HomeChart
         v-model:period="period"
         v-model:data="data"

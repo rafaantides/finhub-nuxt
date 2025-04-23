@@ -16,7 +16,6 @@ const cardRef = useTemplateRef<HTMLElement | null>('cardRef')
 const period = defineModel<Period>('period', { required: true })
 
 const data = defineModel<any>('data', { required: true })
-const sumTotal = defineModel<number>('sum', { required: true })
 const categories = defineModel<string[]>('categories', { required: true })
 
 const chartData = computed(() => {
@@ -87,14 +86,14 @@ const tooltip = (d: DataRecord) => {
 
 <template>
   <UCard ref="cardRef" :ui="{ body: '!px-0 !pt-0 !pb-3' }">
-    <template #header>
+    <!-- <template #header>
       <div>
-        <p class="text-xs text-(--ui-text-muted) uppercase mb-1.5">Revenue</p>
+        <p class="text-xs text-(--ui-text-muted) uppercase mb-1.5">Resumo por Categoria</p>
         <p class="text-3xl text-(--ui-text-highlighted) font-semibold">
           {{ formatNumber(sumTotal) }}
         </p>
       </div>
-    </template>
+    </template> -->
 
     <VisXYContainer
       :data="chartData"
