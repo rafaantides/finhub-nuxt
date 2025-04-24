@@ -104,22 +104,31 @@ function onFileChange(event: Event) {
 
     <template #body>
       <div class="flex flex-col gap-6 w-full lg:max-w-2xl mx-auto">
-        <UPageCard
-          title="Enviar Arquivo"
-          variant="subtle"
-          orientation="horizontal"
-          :ui="{ body: 'flex flex-col gap-6' }"
-        >
-          <UButton
-            label="Enviar"
-            color="primary"
-            type="submit"
-            class="w-fit lg:ms-auto"
-            @click="onSubmit"
-          />
-        </UPageCard>
-
         <form class="flex flex-col gap-6" @submit.prevent="onSubmit">
+          <UPageCard variant="subtle" :ui="{ body: 'flex flex-col gap-6' }">
+            <UFormField
+              name="file"
+              label="Arquivo"
+              required
+              class="flex max-sm:flex-col justify-between sm:items-center gap-4"
+            >
+              <div class="flex flex-wrap items-center gap-3">
+                <UButton
+                  label="Selecionar Arquivo"
+                  color="neutral"
+                  @click="onFileClick"
+                />
+                <span v-if="selectedFile">{{ selectedFile.name }}</span>
+                <input
+                  ref="fileRef"
+                  type="file"
+                  class="hidden"
+                  @change="onFileChange"
+                />
+              </div>
+            </UFormField>
+          </UPageCard>
+
           <UPageCard variant="subtle" :ui="{ body: 'flex flex-col gap-6' }">
             <UFormField
               name="resource"
@@ -150,28 +159,19 @@ function onFileChange(event: Event) {
             </UFormField>
           </UPageCard>
 
-          <UPageCard variant="subtle" :ui="{ body: 'flex flex-col gap-6' }">
-            <UFormField
-              name="file"
-              label="Arquivo"
-              required
-              class="flex max-sm:flex-col justify-between sm:items-center gap-4"
-            >
-              <div class="flex flex-wrap items-center gap-3">
-                <UButton
-                  label="Selecionar Arquivo"
-                  color="neutral"
-                  @click="onFileClick"
-                />
-                <span v-if="selectedFile">{{ selectedFile.name }}</span>
-                <input
-                  ref="fileRef"
-                  type="file"
-                  class="hidden"
-                  @change="onFileChange"
-                />
-              </div>
-            </UFormField>
+          <UPageCard
+            title="Enviar Arquivo"
+            variant="subtle"
+            orientation="horizontal"
+            :ui="{ body: 'flex flex-col gap-6' }"
+          >
+            <UButton
+              label="Enviar"
+              color="primary"
+              type="submit"
+              class="w-fit lg:ms-auto"
+              @click="onSubmit"
+            />
           </UPageCard>
         </form>
       </div>

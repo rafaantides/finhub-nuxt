@@ -67,7 +67,7 @@ export function getInvoiceRowItems(
       color: 'error',
       async onSelect() {
         try {
-          await $fetch(`/api/debts/${row.original.id}`, {
+          await $fetch(`/api/invoices/${row.original.id}`, {
             method: 'DELETE'
           })
 

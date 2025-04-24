@@ -1,10 +1,17 @@
 <script setup lang="ts">
 import { h } from 'vue'
 import type { TableColumn } from '@nuxt/ui'
-import { getCategoryColor } from '~/composables/useDebtSummary'
+import type { Category } from '~/types/api'
 
 const data = defineModel<any>('data', { required: true })
+const props = defineProps<{
+  categories: Category[]
+}>()
 
+function getCategoryColor(categoryName: string): string {
+  const category = props.categories.find((cat) => cat.name === categoryName)
+  return category?.color ?? '#CBD5E1' // cor padrão (cinza claro do Tailwind, caso não encontre)
+}
 const columns: TableColumn<{
   category: string
   total: number
@@ -39,19 +46,19 @@ const columns: TableColumn<{
       h('div', { class: 'text-center' }, row.getValue('transactions'))
   },
   {
-    accessorKey: 'average',
-    header: () => h('div', { class: 'text-center' }, 'Média'),
-    cell: ({ row }) => {
-      const average = Number(row.getValue('average'))
-      return h('div', { class: 'text-center' }, `R$${average.toFixed(2)}`)
-    }
-  },
-  {
     accessorKey: 'total',
     header: () => h('div', { class: 'text-center' }, 'Total'),
     cell: ({ row }) => {
       const total = Number(row.getValue('total'))
       return h('div', { class: 'text-center' }, `R$${total.toFixed(2)}`)
+    }
+  },
+  {
+    accessorKey: 'average',
+    header: () => h('div', { class: 'text-center' }, 'Média'),
+    cell: ({ row }) => {
+      const average = Number(row.getValue('average'))
+      return h('div', { class: 'text-center' }, `R$${average.toFixed(2)}`)
     }
   },
   {

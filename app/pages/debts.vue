@@ -4,6 +4,21 @@ import { useTableColumns } from '~/composables/useTableColumns'
 import type { Debt, ApiResponse, Category, PaymentStatus } from '~/types/api'
 import { debtColumnsConfig, getDebtRowItems } from '~/composables/useDebt'
 
+useHead({
+  title: 'Dashboard | Débitos',
+  meta: [
+    {
+      name: 'description',
+      content: 'Lista de débitos, seus detalhes e status de pagamento'
+    },
+    { name: 'og:title', content: 'Dashboard | Débitos' },
+    {
+      name: 'og:description',
+      content: 'Lista de débitos, seus detalhes e status de pagamento'
+    }
+  ]
+})
+
 const components = {
   UBadge: resolveComponent('UBadge') as Component,
   UCheckbox: resolveComponent('UCheckbox') as Component,

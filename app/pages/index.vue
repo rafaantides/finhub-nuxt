@@ -1,6 +1,22 @@
 <script setup lang="ts">
 import { sub } from 'date-fns'
 import type { Period, Range } from '~/types'
+import type { Category } from '~/types/api'
+
+useHead({
+  title: 'Dashboard | Home',
+  meta: [
+    {
+      name: 'description',
+      content: 'Resumo financeiro e gráficos por categoria'
+    },
+    { name: 'og:title', content: 'Dashboard | Home' },
+    {
+      name: 'og:description',
+      content: 'Resumo financeiro e gráficos por categoria'
+    }
+  ]
+})
 
 const { isNotificationsSlideoverOpen } = useDashboard()
 
@@ -25,7 +41,45 @@ const range = shallowRef<Range>({
 })
 const period = ref<Period>('daily')
 
-const { data, sumTotal, categories } = useDebtSummary(period, range)
+const totalCategory = ref<Category>({
+  id: 'total',
+  name: 'total',
+  color: '#CBD5E1',
+  description: 'Soma total de todas as categorias'
+})
+
+const uncategorizedCategory = ref<Category>({
+  id: 'uncategorized',
+  name: 'Sem categoria',
+  color: '#CBD5E1', // ou qualquer cor neutra que combine com o tema
+  description: 'Valores que não pertencem a nenhuma categoria específica'
+})
+
+const dataCategories = ref<Category[]>([])
+
+onMounted(() => {
+  const root = document.documentElement
+  const primaryColor = getComputedStyle(root)
+    .getPropertyValue('--ui-primary')
+    .trim()
+  totalCategory.value.color = primaryColor
+})
+
+const { data: response } = await useFetch<{ data: Category[] }>(
+  '/api/categories',
+  {
+    query: {
+      page_size: 100
+    }
+  }
+)
+dataCategories.value = [
+  totalCategory.value,
+  uncategorizedCategory.value,
+  ...(response.value?.data || [])
+]
+
+const { data } = useDebtSummary(period, range)
 const { data: stats } = useDebtStats(period, range)
 </script>
 
@@ -70,12 +124,12 @@ const { data: stats } = useDebtStats(period, range)
     <template #body>
       <HomeStats v-model:data="stats" :period="period" :range="range" />
       <HomeChart
+        v-if="dataCategories.length"
         v-model:period="period"
         v-model:data="data"
-        v-model:sum="sumTotal"
-        v-model:categories="categories"
+        :categories="dataCategories"
       />
-      <HomeSales v-model:data="data" />
+      <HomeTable v-model:data="data" :categories="dataCategories" />
     </template>
   </UDashboardPanel>
 </template>

@@ -1,4 +1,4 @@
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import type { Period, Range } from '~/types'
 
 type DataRecord = {
@@ -25,7 +25,11 @@ export function useDebtStats(period: Ref<Period>, range: Ref<Range>) {
     data.value = response.value?.data || []
   }
 
-  watch([period, range], fetchData, { immediate: true })
+  watchEffect(() => {
+    if (period.value && range.value?.start && range.value?.end) {
+      fetchData()
+    }
+  })
 
   return {
     data

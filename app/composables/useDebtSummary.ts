@@ -1,4 +1,4 @@
-import { ref, computed, watch } from 'vue'
+import { ref } from 'vue'
 import type { Period, Range } from '~/types'
 
 type DataRecord = {
@@ -25,49 +25,13 @@ export function useDebtSummary(period: Ref<Period>, range: Ref<Range>) {
     data.value = response.value?.data || []
   }
 
-  watch([period, range], fetchData, { immediate: true })
-
-  const sumTotal = computed(() =>
-    data.value.reduce((acc: number, item) => acc + (Number(item.total) || 0), 0)
-  )
-
-  const categories = [
-    'total',
-    'Assinaturas e Streaming',
-    'Alimentação e Delivery',
-    'Saúde e Bem-estar',
-    'Compras e E-commerce',
-    'Transporte',
-    'Vestuario e Estética',
-    'Mercado e Conveniência',
-    'Cafés e Bares',
-    'Eventos e Lazer'
-  ]
+  watchEffect(() => {
+    if (period.value && range.value?.start && range.value?.end) {
+      fetchData()
+    }
+  })
 
   return {
-    data,
-    sumTotal,
-    categories
+    data
   }
-}
-export function getCategoryColor(category: string): string {
-  const root = document.documentElement
-  const primaryColor = getComputedStyle(root)
-    .getPropertyValue('--ui-primary')
-    .trim()
-
-  const categoryColorMap: Record<string, string> = {
-    total: primaryColor,
-    'Assinaturas e Streaming': '#FF6384',
-    'Alimentação e Delivery': '#FF9F40',
-    'Saúde e Bem-estar': '#4BC0C0',
-    'Compras e E-commerce': '#9966FF',
-    Transporte: '#36A2EB',
-    'Vestuario e Estética': '#FFCE56',
-    'Mercado e Conveniência': '#8AC24A',
-    'Cafés e Bares': '#CD853F',
-    'Eventos e Lazer': '#BA55D3'
-  }
-
-  return categoryColorMap[category] || '#CCCCCC'
 }

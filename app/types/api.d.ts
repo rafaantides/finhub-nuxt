@@ -5,6 +5,8 @@ type ApiResponse<T> = {
 export interface Category {
   id: string
   name: string
+  description: string
+  color: string
 }
 
 export interface PaymentStatus {
