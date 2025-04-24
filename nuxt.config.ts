@@ -11,7 +11,8 @@ export default defineNuxtConfig({
   runtimeConfig: {
     apiBaseUrl: process.env.API_BASE_URL,
     public: {
-      defaultPageSize: 10
+      defaultPageSize: 10,
+      uncategorizedColor: '#CBD5E1'
     }
   },
 

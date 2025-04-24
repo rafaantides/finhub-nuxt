@@ -5,14 +5,16 @@ import type { ColumnConfig } from '~/types/table'
 const currentPage = defineModel<number>('currentPage', { required: true })
 const pageSize = defineModel<number>('pageSize', { required: true })
 const search = defineModel<string | null>('search')
-const statusId = defineModel<string>('statusId')
+const statusId = defineModel<string[]>('statusId')
+const categoryId = defineModel<string[]>('categoryId')
 
 const props = defineProps<{
   data: any[]
   columns: TableColumn<unknown>[]
   loading: boolean
   total: number
-  statuses: { label: string; value: string }[]
+  statuses?: { label: string; value: string }[]
+  categories?: { label: string; value: string }[]
   columnConfig: ColumnConfig[]
 }>()
 
@@ -20,6 +22,19 @@ const table = useTemplateRef('table')
 const rowSelection = ref({})
 const columnVisibility = ref()
 const columnFilters = ref([])
+
+watch(categoryId, (newVal) => {
+  if (newVal?.includes('all')) {
+    categoryId.value = []
+  }
+})
+
+// Observa statusId e limpa se tiver valor undefined
+watch(statusId, (newVal) => {
+  if (newVal?.includes('all')) {
+    statusId.value = []
+  }
+})
 
 const pagination = ref({
   pageIndex: currentPage.value - 1,
@@ -57,12 +72,23 @@ const pagination = ref({
       </CustomersDeleteModal>
 
       <USelect
-        v-model="statusId"
-        :items="[{ label: 'All' }, ...props.statuses]"
-        placeholder="Status"
-        clearable
-        class="min-w-28"
+        v-if="props.categories"
+        v-model="categoryId"
+        :items="[{ label: 'All', value: 'all' }, ...props.categories]"
+        placeholder="Category"
+        multiple
+        class="min-w-48 max-w-48"
       />
+
+      <USelect
+        v-if="props.statuses"
+        v-model="statusId"
+        :items="[{ label: 'All', value: 'all' }, ...props.statuses]"
+        placeholder="Status"
+        multiple
+        class="min-w-28 max-w-28"
+      />
+
       <UDropdownMenu
         :items="
           props.columnConfig

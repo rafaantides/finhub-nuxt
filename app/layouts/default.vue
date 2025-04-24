@@ -4,7 +4,7 @@ const toast = useToast()
 
 const open = ref(false)
 
-const links = [
+const links = computed(() => [
   [
     {
       label: 'Home',
@@ -27,10 +27,10 @@ const links = [
       label: 'Faturas',
       icon: 'i-lucide-file-text',
       to: '/invoices',
+      active: route.path.startsWith('/invoices'),
       onSelect: () => {
         open.value = false
-      },
-      active: computed(() => route.path.startsWith('/invoices')).value
+      }
     },
     {
       label: 'Débitos',
@@ -112,13 +112,13 @@ const links = [
       target: '_blank'
     }
   ]
-]
+])
 
 const groups = computed(() => [
   {
     id: 'links',
     label: 'Go to',
-    items: links.flat()
+    items: links.value.flat()
   },
   {
     id: 'code',

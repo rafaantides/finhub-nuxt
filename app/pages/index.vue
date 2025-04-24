@@ -35,6 +35,8 @@ const items = [
   ]
 ]
 
+const config = useRuntimeConfig()
+
 const range = shallowRef<Range>({
   start: sub(new Date(), { days: 30 }),
   end: new Date()
@@ -44,15 +46,8 @@ const period = ref<Period>('daily')
 const totalCategory = ref<Category>({
   id: 'total',
   name: 'total',
-  color: '#CBD5E1',
+  color: config.public.uncategorizedColor,
   description: 'Soma total de todas as categorias'
-})
-
-const uncategorizedCategory = ref<Category>({
-  id: 'uncategorized',
-  name: 'Sem categoria',
-  color: '#CBD5E1', // ou qualquer cor neutra que combine com o tema
-  description: 'Valores que não pertencem a nenhuma categoria específica'
 })
 
 const dataCategories = ref<Category[]>([])
@@ -73,11 +68,7 @@ const { data: response } = await useFetch<{ data: Category[] }>(
     }
   }
 )
-dataCategories.value = [
-  totalCategory.value,
-  uncategorizedCategory.value,
-  ...(response.value?.data || [])
-]
+dataCategories.value = [totalCategory.value, ...(response.value?.data || [])]
 
 const { data } = useDebtSummary(period, range)
 const { data: stats } = useDebtStats(period, range)

@@ -2,7 +2,25 @@
 import { usePaginatedData } from '~/composables/usePaginatedData'
 import { useTableColumns } from '~/composables/useTableColumns'
 import type { Invoice, ApiResponse, PaymentStatus } from '~/types/api'
-import { invoiceColumnsConfig, getInvoiceRowItems } from '~/composables/useInvoice'
+import {
+  invoiceColumnsConfig,
+  getInvoiceRowItems
+} from '~/composables/useInvoice'
+
+useHead({
+  title: 'Dashboard | Faturas',
+  meta: [
+    {
+      name: 'description',
+      content: 'Lista de faturas, seus detalhes e status de pagamento'
+    },
+    { name: 'og:title', content: 'Dashboard | Faturas' },
+    {
+      name: 'og:description',
+      content: 'Lista de faturas, seus detalhes e status de pagamento'
+    }
+  ]
+})
 
 const components = {
   UBadge: resolveComponent('UBadge') as Component,

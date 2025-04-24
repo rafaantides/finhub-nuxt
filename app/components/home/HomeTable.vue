@@ -8,9 +8,11 @@ const props = defineProps<{
   categories: Category[]
 }>()
 
+const config = useRuntimeConfig()
+
 function getCategoryColor(categoryName: string): string {
   const category = props.categories.find((cat) => cat.name === categoryName)
-  return category?.color ?? '#CBD5E1' // cor padrão (cinza claro do Tailwind, caso não encontre)
+  return category?.color ?? config.public.uncategorizedColor
 }
 const columns: TableColumn<{
   category: string
