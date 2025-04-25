@@ -19,8 +19,12 @@ const schema = z.object({
   due_date: z.coerce.date({
     required_error: 'Data de vencimento obrigatória'
   }),
-  issue_date: z.coerce.date().optional(),
-  status_id: z.string().uuid().optional()
+  issue_date: z.coerce.date().nullable(),
+  status_id: z
+    .string({
+      required_error: 'Selecione um status'
+    })
+    .uuid('Status inválido')
 })
 
 type Schema = z.output<typeof schema>
@@ -42,7 +46,7 @@ watch(
       state.due_date = new Date(invoice.due_date)
       state.issue_date = invoice.issue_date
         ? new Date(invoice.issue_date)
-        : undefined
+        : null
       state.status_id = invoice.status?.id
     }
   },
@@ -53,7 +57,7 @@ const issueDate = computed({
   get: () =>
     state.issue_date ? state.issue_date.toISOString().substring(0, 16) : '',
   set: (val: string) => {
-    state.issue_date = val ? new Date(val) : undefined
+    state.issue_date = val ? new Date(val) : null
   }
 })
 
@@ -67,19 +71,20 @@ const dueDate = computed({
 const toast = useToast()
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
-  if (!props.invoice?.id) return
+  const isEdit = Boolean(props.invoice?.id)
+  const url = isEdit ? `/api/invoices/${props.invoice!.id}` : '/api/invoices'
+  const method = isEdit ? 'PUT' : 'POST'
 
   try {
-    const { data } = await $fetch<{ data: Invoice }>(
-      `/api/invoices/${props.invoice.id}`,
-      {
-        method: 'PUT',
-        body: event.data
-      }
-    )
+    const { data } = await $fetch<{ data: Invoice }>(url, {
+      method,
+      body: event.data
+    })
 
     toast.add({
-      title: 'Fatura atualizada com sucesso',
+      title: isEdit
+        ? 'Fatura atualizada com sucesso'
+        : 'Fatura criada com sucesso',
       description: `ID: ${data.id}`,
       color: 'success'
     })
@@ -87,16 +92,21 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     props.refresh()
   } catch (error: any) {
     toast.add({
-      title: 'Erro ao atualizar a fatura',
+      title: isEdit ? 'Erro ao atualizar a fatura' : 'Erro ao criar a fatura',
       description: error?.data?.message || error.message,
       color: 'error'
     })
+  } finally {
+    open.value = false
   }
 }
 </script>
 
 <template>
-  <UModal v-model:open="open" :title="`ID: ${props.invoice?.id ?? ''}`">
+  <UModal
+    v-model:open="open"
+    :title="props.invoice?.id ? `ID: ${props.invoice.id}` : 'Nova Fatura'"
+  >
     <template #body>
       <UForm
         :schema="schema"

@@ -31,6 +31,7 @@ const components = {
 
 const selectedData = ref<Invoice | null>(null)
 const isDetailModalOpen = ref(false)
+const isNewModalOpen = ref(false)
 
 const showDetails = (invoice: Invoice) => {
   selectedData.value = invoice
@@ -72,13 +73,13 @@ const statuses = computed(() => toSelectOptions(statusesData.value?.data))
 </script>
 
 <template>
-  <!-- <DebtsDetailModal
+  <InvoicesUpsertModal
     v-model:open="isDetailModalOpen"
-    :debt="selectedData"
+    :invoice="selectedData"
     :statuses="statuses"
     :refresh="refresh"
     @close="isDetailModalOpen = false"
-  /> -->
+  />
 
   <UDashboardPanel id="invoices">
     <template #header>
@@ -87,7 +88,18 @@ const statuses = computed(() => toSelectOptions(statusesData.value?.data))
           <UDashboardSidebarCollapse />
         </template>
         <template #right>
-          <DebtsAddModal :statuses="statuses" :refresh="refresh" />
+          <UButton
+            label="Adicionar Fatura"
+            icon="i-lucide-plus"
+            @click="isNewModalOpen = true"
+          />
+          <InvoicesUpsertModal
+            v-model:open="isNewModalOpen"
+            :invoice="null"
+            :statuses="statuses"
+            :refresh="refresh"
+            @close="isNewModalOpen = false"
+          />
         </template>
       </UDashboardNavbar>
     </template>

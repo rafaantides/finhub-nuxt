@@ -18,13 +18,23 @@ const props = defineProps<{
 const schema = z.object({
   invoice_id: z.string().uuid().optional(),
   title: z.string().min(1, 'Título é obrigatório'),
-  amount: z.number(),
+  amount: z.number({
+    required_error: 'Valor é obrigatório'
+  }),
   purchase_date: z.coerce.date({
     required_error: 'Data de compra obrigatória'
   }),
-  due_date: z.coerce.date().optional(),
-  category_id: z.string().uuid().optional(),
-  status_id: z.string().uuid().optional()
+  due_date: z.coerce.date().nullable(),
+  category_id: z
+    .string({
+      required_error: 'Selecione uma categoria'
+    })
+    .uuid(),
+  status_id: z
+    .string({
+      required_error: 'Selecione um status'
+    })
+    .uuid()
 })
 
 type Schema = z.output<typeof schema>
@@ -95,7 +105,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     props.refresh()
   } catch (error: any) {
     toast.add({
-      title: isEdit ? 'Erro ao atualizar débito' : 'Erro ao criar o débito',
+      title: isEdit ? 'Erro ao atualizar o débito' : 'Erro ao criar o débito',
       description: error?.data?.message || error.message,
       color: 'error'
     })
