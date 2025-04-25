@@ -43,6 +43,7 @@ const range = shallowRef<Range>({
 })
 const period = ref<Period>('daily')
 
+// TODO: ver se tem como pegar a cor primaria de outra forma
 const totalCategory = ref<Category>({
   id: 'total',
   name: 'total',

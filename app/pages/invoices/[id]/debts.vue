@@ -13,6 +13,7 @@ const components = {
 
 const selectedData = ref<Debt | null>(null)
 const isDetailModalOpen = ref(false)
+const isNewModalOpen = ref(false)
 
 const showDetails = (debt: Debt) => {
   selectedData.value = debt
@@ -22,19 +23,23 @@ const showDetails = (debt: Debt) => {
 const route = useRoute()
 const id = ref(route.params.id?.toString())
 
+const statusId = getQueryParam('status_id')
+const categoryId = getQueryParam('category_id')
+
 const {
   data,
   total,
   status,
-  currentPage,
+  page,
   pageSize,
   orderBy,
   orderDirection,
   search,
-  statusId,
   refresh
-} = usePaginatedData(`invoices/${id.value}/debts`)
-
+} = usePaginatedData(`invoices/${id.value}/debts`, [
+  { key: 'status_id', ref: statusId },
+  { key: 'category_id', ref: categoryId }
+])
 const columns = useTableColumns(
   debtColumnsConfig,
   orderBy,
@@ -45,7 +50,6 @@ const columns = useTableColumns(
 )
 
 // TODO: pegar o valor da fatura e colocar informativo no topo do card
-
 const { data: categoryData } = useFetch<ApiResponse<Category[]>>(
   '/api/categories',
   {
@@ -67,7 +71,7 @@ const statuses = computed(() => toSelectOptions(statusesData.value?.data))
 </script>
 
 <template>
-  <DebtsDetailModal
+  <DebtsUpsertModal
     v-model:open="isDetailModalOpen"
     :debt="selectedData"
     :categories="categories"
@@ -83,10 +87,19 @@ const statuses = computed(() => toSelectOptions(statusesData.value?.data))
           <UDashboardSidebarCollapse />
         </template>
         <template #right>
-          <DebtsAddModal
+          <UButton
+            label="Adicionar Débito"
+            icon="i-lucide-plus"
+            @click="isNewModalOpen = true"
+          />
+          <DebtsUpsertModal
+            v-model:open="isNewModalOpen"
+            :debt="null"
             :categories="categories"
             :statuses="statuses"
             :refresh="refresh"
+            :invoice-id="id"
+            @close="isNewModalOpen = false"
           />
         </template>
       </UDashboardNavbar>
@@ -94,17 +107,18 @@ const statuses = computed(() => toSelectOptions(statusesData.value?.data))
 
     <template #body>
       <DataTable
-        v-model:current-page="currentPage"
+        v-model:current-page="page"
         v-model:page-size="pageSize"
         v-model:search="search"
         v-model:status-id="statusId"
+        v-model:category-id="categoryId"
         :data="data"
         :columns="columns"
         :loading="status === 'pending'"
         :total="total"
         :statuses="statuses"
         :column-config="debtColumnsConfig"
-        @update:current-page="(val) => (currentPage = val)"
+        @update:current-page="(val) => (page = val)"
       />
     </template>
   </UDashboardPanel>

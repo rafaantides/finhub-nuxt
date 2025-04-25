@@ -1,12 +1,20 @@
 import { useRoute, useRouter, useRuntimeConfig } from '#imports'
 import type { ApiResponse } from '~/types/api'
 
-export function usePaginatedData(endpoint: string) {
+interface ExtraQuery {
+  key: string
+  ref: Ref<any>
+}
+
+export function usePaginatedData(
+  endpoint: string,
+  extraQuery: ExtraQuery[] = []
+) {
   const route = useRoute()
   const router = useRouter()
   const config = useRuntimeConfig()
 
-  const currentPage = ref(Number(route.query.page || 1))
+  const page = ref(Number(route.query.page || 1))
   const pageSize = ref(
     Number(route.query.page_size || config.public.defaultPageSize)
   )
@@ -14,29 +22,21 @@ export function usePaginatedData(endpoint: string) {
   const orderDirection = ref(route.query.order_direction?.toString() ?? null)
   const search = ref(route.query.search?.toString() ?? null)
 
-  const statusId = ref<string[]>(
-    Array.isArray(route.query.status_id)
-      ? route.query.status_id.map((id) => (id ? String(id) : ''))
-      : route.query.status_id
-      ? [String(route.query.status_id)]
-      : []
-  )
-  const categoryId = ref<string[]>(
-    Array.isArray(route.query.category_id)
-      ? route.query.category_id.map((id) => (id ? String(id) : ''))
-      : route.query.category_id
-      ? [String(route.query.category_id)]
-      : []
-  )
+  const extraParams = () => {
+    const obj: Record<string, any> = {}
+    for (const { key, ref } of extraQuery) {
+      obj[key] = ref.value
+    }
+    return obj
+  }
 
   const query = computed(() => ({
-    page: currentPage.value,
+    page: page.value,
     page_size: pageSize.value,
     order_by: orderBy.value,
     order_direction: orderDirection.value,
     search: search.value,
-    status_id: statusId.value,
-    category_id: categoryId.value
+    ...extraParams()
   }))
 
   const { data, refresh, status, error } = useFetch<ApiResponse<unknown[]>>(
@@ -60,47 +60,21 @@ export function usePaginatedData(endpoint: string) {
   const items = computed(() => data.value?.data ?? [])
   const total = computed(() => data.value?.total ?? 0)
 
-  watch(
-    [orderBy, orderDirection, search, statusId, categoryId, pageSize],
-    (
-      [
-        newOrderBy,
-        newOrderDir,
-        newSearch,
-        newStatusId,
-        newCategoryId,
-        newPageSize
-      ],
-      [
-        oldOrderBy,
-        oldOrderDir,
-        oldSearch,
-        oldStatusId,
-        oldCategoryId,
-        oldPageSize
-      ]
-    ) => {
-      if (
-        newOrderBy !== oldOrderBy ||
-        newOrderDir !== oldOrderDir ||
-        newSearch !== oldSearch ||
-        newPageSize !== oldPageSize ||
-        newStatusId !== oldStatusId ||
-        newCategoryId !== oldCategoryId
-      ) {
-        currentPage.value = 1
-      }
+  watch([page], () => {
+    updateQueryParams(router, query)
+  })
 
-      updateQueryParams(
-        router,
-        currentPage,
-        pageSize,
-        orderBy,
-        orderDirection,
-        search,
-        statusId,
-        categoryId
-      )
+  watch(
+    [
+      pageSize,
+      orderBy,
+      orderDirection,
+      search,
+      ...extraQuery.map((e) => e.ref)
+    ],
+    () => {
+      page.value = 1
+      updateQueryParams(router, query)
     }
   )
 
@@ -108,13 +82,27 @@ export function usePaginatedData(endpoint: string) {
     data: items,
     total,
     status,
-    currentPage,
+    page,
     pageSize,
     orderBy,
     orderDirection,
     search,
-    statusId,
-    categoryId,
     refresh
   }
+}
+
+export function getQueryParam(key: string) {
+  const route = useRoute()
+
+  const value = route.query[key]
+
+  const param = ref<string[]>(
+    Array.isArray(value)
+      ? value.map((id) => (id ? String(id) : ''))
+      : value
+      ? [String(value)]
+      : []
+  )
+
+  return param
 }

@@ -165,11 +165,13 @@ function onFileChange(event: Event) {
             orientation="horizontal"
             :ui="{ body: 'flex flex-col gap-6' }"
           >
+          <!-- TODO: usar um icone ou um UBadge -->
             <UButton
               label="Enviar"
               color="primary"
               type="submit"
               class="w-fit lg:ms-auto"
+              icone="i-lucide-rocket"
               @click="onSubmit"
             />
           </UPageCard>

@@ -1,66 +1,93 @@
 <script setup lang="ts">
-import * as z from 'zod'
-import type { FormSubmitEvent } from '@nuxt/ui'
+import { reactive, computed, watch } from 'vue'
+import { z } from 'zod'
+import { useToast } from '#imports'
+import type { FormSubmitEvent } from '#ui/types'
 import type { Debt } from '~/types/api'
 
+const open = defineModel<boolean>('open', { required: true })
+
 const props = defineProps<{
+  debt: Debt | null
+  invoiceId?: string
   categories: { label: string; value: string }[]
   statuses: { label: string; value: string }[]
   refresh: () => void
 }>()
 
 const schema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  amount: z.number().min(0, 'Amount must be positive'),
+  invoice_id: z.string().uuid().optional(),
+  title: z.string().min(1, 'Título é obrigatório'),
+  amount: z.number(),
   purchase_date: z.coerce.date({
-    required_error: 'Purchase date is required'
+    required_error: 'Data de compra obrigatória'
   }),
   due_date: z.coerce.date().optional(),
-  invoice_id: z.string().uuid('Invalid invoice ID').optional(),
-  category_id: z.string().uuid('Invalid category ID').optional(),
-  status_id: z.string().uuid('Invalid status ID').optional()
+  category_id: z.string().uuid().optional(),
+  status_id: z.string().uuid().optional()
 })
-const open = ref(false)
 
 type Schema = z.output<typeof schema>
 
 const state = reactive<Partial<Schema>>({
+  invoice_id: props.invoiceId ?? undefined,
   title: undefined,
   amount: undefined,
   purchase_date: undefined,
   due_date: undefined,
-  invoice_id: undefined,
   category_id: undefined,
   status_id: undefined
 })
 
+watch(
+  () => props.debt,
+  (debt) => {
+    if (debt) {
+      state.invoice_id = debt.invoice?.id
+      state.title = debt.title
+      state.amount = debt.amount
+      state.purchase_date = new Date(debt.purchase_date)
+      state.due_date = debt.due_date ? new Date(debt.due_date) : undefined
+      state.category_id = debt.category?.id
+      state.status_id = debt.status?.id
+    }
+  },
+  { immediate: true }
+)
+
 const purchaseDate = computed({
   get: () =>
     state.purchase_date
-      ? state.purchase_date.toISOString().substring(0, 16) // Formato yyyy-mm-ddThh:mm
+      ? state.purchase_date.toISOString().substring(0, 16)
       : '',
-  set: (value: string) => {
-    state.purchase_date = value ? new Date(value) : undefined
+  set: (val: string) => {
+    state.purchase_date = val ? new Date(val) : undefined
   }
 })
 
 const dueDate = computed({
   get: () => (state.due_date ? state.due_date.toISOString().split('T')[0] : ''),
-  set: (value: string) => {
-    state.due_date = value ? new Date(value) : undefined
+  set: (val: string) => {
+    state.due_date = val ? new Date(val) : undefined
   }
 })
 
 const toast = useToast()
 async function onSubmit(event: FormSubmitEvent<Schema>) {
+  const isEdit = Boolean(props.debt?.id)
+  const url = isEdit ? `/api/debts/${props.debt!.id}` : '/api/debts'
+  const method = isEdit ? 'PUT' : 'POST'
+
   try {
-    const { data } = await $fetch<{ data: Debt }>(`/api/debts`, {
-      method: 'POST',
+    const { data } = await $fetch<{ data: Debt }>(url, {
+      method,
       body: event.data
     })
 
     toast.add({
-      title: 'Débito criado com sucesso',
+      title: isEdit
+        ? 'Débito atualizado com sucesso'
+        : 'Débito criado com sucesso',
       description: `ID: ${data.id}`,
       color: 'success'
     })
@@ -68,19 +95,21 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     props.refresh()
   } catch (error: any) {
     toast.add({
-      title: 'Erro ao criar o débito',
+      title: isEdit ? 'Erro ao atualizar débito' : 'Erro ao criar o débito',
       description: error?.data?.message || error.message,
       color: 'error'
     })
+  } finally {
+    open.value = false
   }
-  open.value = false
 }
 </script>
 
 <template>
-  <UModal v-model:open="open" title="Novo Débito">
-    <UButton label="Adicionar Débito" icon="i-lucide-plus" />
-
+  <UModal
+    v-model:open="open"
+    :title="props.debt?.id ? `ID: ${props.debt.id}` : 'Novo Débito'"
+  >
     <template #body>
       <UForm
         :schema="schema"
@@ -88,6 +117,10 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         class="space-y-4"
         @submit="onSubmit"
       >
+        <UFormField label="Invoice ID" name="invoice_id">
+          <UInput v-model="state.invoice_id" class="w-full" disabled />
+        </UFormField>
+
         <UFormField label="Título" name="title">
           <UInput v-model="state.title" class="w-full" />
         </UFormField>
@@ -129,12 +162,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
             variant="subtle"
             @click="open = false"
           />
-          <UButton
-            label="Salvar"
-            color="primary"
-            variant="solid"
-            type="submit"
-          />
+          <UButton label="Salvar" color="primary" type="submit" />
         </div>
       </UForm>
     </template>

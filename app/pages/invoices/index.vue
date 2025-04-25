@@ -37,18 +37,19 @@ const showDetails = (invoice: Invoice) => {
   isDetailModalOpen.value = true
 }
 
+const statusId = getQueryParam('status_id')
+
 const {
   data,
   total,
   status,
-  currentPage,
+  page,
   pageSize,
   orderBy,
   orderDirection,
   search,
-  statusId,
   refresh
-} = usePaginatedData('invoices')
+} = usePaginatedData('invoices', [{ key: 'status_id', ref: statusId }])
 
 const columns = useTableColumns(
   invoiceColumnsConfig,
@@ -82,21 +83,18 @@ const statuses = computed(() => toSelectOptions(statusesData.value?.data))
   <UDashboardPanel id="invoices">
     <template #header>
       <UDashboardNavbar title="Faturas">
-        <!-- <template #leading>
+        <template #leading>
           <UDashboardSidebarCollapse />
         </template>
         <template #right>
-          <DebtsAddModal
-            :statuses="statuses"
-            :refresh="refresh"
-          />
-        </template> -->
+          <DebtsAddModal :statuses="statuses" :refresh="refresh" />
+        </template>
       </UDashboardNavbar>
     </template>
 
     <template #body>
       <DataTable
-        v-model:current-page="currentPage"
+        v-model:current-page="page"
         v-model:page-size="pageSize"
         v-model:search="search"
         v-model:status-id="statusId"
@@ -106,7 +104,7 @@ const statuses = computed(() => toSelectOptions(statusesData.value?.data))
         :total="total"
         :statuses="statuses"
         :column-config="invoiceColumnsConfig"
-        @update:current-page="(val) => (currentPage = val)"
+        @update:current-page="(val) => (page = val)"
       />
     </template>
   </UDashboardPanel>
