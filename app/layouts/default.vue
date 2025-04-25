@@ -25,7 +25,7 @@ const links = computed(() => [
     // },
     {
       label: 'Faturas',
-      icon: 'i-lucide-file-text',
+      icon: 'i-lucide-wallet',
       to: '/invoices',
       active: route.path.startsWith('/invoices'),
       onSelect: () => {
@@ -48,10 +48,6 @@ const links = computed(() => [
         open.value = false
       }
     },
-    // {
-    //   label: 'Ver débitos da fatura',
-    //   icon: 'i-lucide-wallet'
-    // },
     // {
     //   label: 'Customers',
     //   icon: 'i-lucide-users',

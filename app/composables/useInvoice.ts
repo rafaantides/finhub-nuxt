@@ -47,14 +47,14 @@ export function getInvoiceRowItems(
       type: 'separator'
     },
     {
-      label: 'Ver detalhes',
-      icon: 'i-lucide-list',
+      label: 'Editar',
+      icon: 'i-lucide-square-pen',
       onSelect() {
         showDetails(row.original)
       }
     },
     {
-      label: 'Ver débitos da fatura',
+      label: 'Ver débitos',
       icon: 'i-lucide-credit-card',
       to: `/invoices/${row.original.id}/debts`
     },

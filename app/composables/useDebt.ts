@@ -59,8 +59,8 @@ export function getDebtRowItems(
       type: 'separator'
     },
     {
-      label: 'Ver detalhes',
-      icon: 'i-lucide-list',
+      label: 'Editar',
+      icon: 'i-lucide-square-pen',
       onSelect() {
         showDetails(row.original)
       }
