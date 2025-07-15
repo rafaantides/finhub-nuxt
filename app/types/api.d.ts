@@ -9,34 +9,22 @@ export interface Category {
   color: string
 }
 
-export interface PaymentStatus {
-  id: string
+export interface Status {
   name: string
 }
 
-export interface Debt {
-  id: string
-  title: string
-  amount: number
-  purchase_date: string
-  due_date?: string
-  created_at: string
-  updated_at: string
-  invoice?: {
-    id: string
-    title: string
-  }
-  status: PaymentStatus
-  category?: Category
+export interface Kind {
+  name: string
 }
 
-export interface Invoice {
+export interface Transaction {
   id: string
+  record_type: string
   title: string
   amount: number
-  issue_date?: string
-  due_date: string
+  record_date: string
   created_at: string
   updated_at: string
-  status: PaymentStatus
+  status: string
+  category?: Category
 }

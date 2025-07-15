@@ -3,7 +3,7 @@ const fileRef = ref<HTMLInputElement>()
 const selectedFile = ref<File | null>(null)
 const toast = useToast()
 
-const resource = ref('debt')
+const resource = ref('transaction')
 const action = ref('create')
 const model = ref('nubank')
 const models = [
@@ -14,8 +14,8 @@ const models = [
 ]
 const resources = [
   {
-    label: 'Débito',
-    value: 'debt'
+    label: 'Transação',
+    value: 'transaction'
   }
 ]
 const actions = [
@@ -51,7 +51,7 @@ async function onSubmit() {
     // Resetar os campos
     model.value = 'nubank'
     action.value = 'create'
-    resource.value = 'debt'
+    resource.value = 'transaction'
     selectedFile.value = null
 
     if (response.ok) {

@@ -80,20 +80,48 @@ export function useTableColumns(
           }
 
           if (col.type === 'status') {
-            type StatusName = 'paid' | 'overdue' | 'pending'
+            type StatusName = 'paid' | 'canceled' | 'pending'
 
-            const statusName = (value?.name || 'pending') as StatusName
+            const statusName = (value || 'pending') as StatusName
 
             const color = {
               paid: 'success',
-              overdue: 'error',
+              canceled: 'error',
               pending: 'warning'
+            }[statusName]
+
+            const label = {
+              paid: 'Concluído',
+              canceled: 'Cancelado',
+              pending: 'Pendente'
             }[statusName]
 
             return h(
               components.UBadge,
               { class: 'capitalize', variant: 'subtle', color },
-              () => value?.name || 'Desconhecido'
+              () => label ?? 'Desconhecido'
+            )
+          }
+
+          if (col.type === 'recordType') {
+            type RecordTypeName = 'income' | 'expense'
+
+            const recordTypeName = (value || 'income') as RecordTypeName
+
+            const color = {
+              income: 'success',
+              expense: 'error'
+            }[recordTypeName]
+
+            const label = {
+              income: 'Entrada',
+              expense: 'Saída'
+            }[recordTypeName]
+
+            return h(
+              components.UBadge,
+              { class: 'capitalize', variant: 'subtle', color },
+              () => label ?? 'Desconhecido'
             )
           }
 

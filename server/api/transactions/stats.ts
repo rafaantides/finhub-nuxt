@@ -1,23 +1,18 @@
-import type { ApiResponse, PaymentStatus } from '~/types/api'
+import { createError } from 'h3'
+import type { ApiResponse, Transaction } from '~/types/api'
 
 export default defineEventHandler(
-  async (event): Promise<ApiResponse<PaymentStatus[]>> => {
+  async (event): Promise<ApiResponse<Transaction[]>> => {
     const config = useRuntimeConfig()
-    const { page, page_size } = getQuery(event)
 
     try {
-      const response = await $fetch.raw<PaymentStatus[]>('/payment_status', {
+      const response = await $fetch.raw<Transaction[]>('/transactions/stats', {
         baseURL: config.apiBaseUrl,
-        query: {
-          page,
-          page_size
-        }
+        query: getQuery(event)
       })
 
-      const total = response.headers.get('X-Total-Count')
       return {
-        data: response._data,
-        total: total ? parseInt(total, 10) : null
+        data: response._data
       }
     } catch (error: any) {
       sendError(

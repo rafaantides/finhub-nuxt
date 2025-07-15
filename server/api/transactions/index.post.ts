@@ -1,13 +1,13 @@
 import { createError, readBody } from 'h3'
-import type { Debt } from '~/types/api'
+import type { Transaction } from '~/types/api'
 
 export default defineEventHandler(
-  async (event): Promise<{ data: Debt | null }> => {
+  async (event): Promise<{ data: Transaction | null }> => {
     const config = useRuntimeConfig()
-    const body = await readBody<Partial<Debt>>(event)
+    const body = await readBody<Partial<Transaction>>(event)
 
     try {
-      const response = await $fetch.raw<Debt>(`/invoices`, {
+      const response = await $fetch.raw<Transaction>(`/transactions`, {
         method: 'POST',
         baseURL: config.apiBaseUrl,
         body

@@ -5,16 +5,18 @@ import type { ColumnConfig } from '~/types/table'
 const currentPage = defineModel<number>('currentPage', { required: true })
 const pageSize = defineModel<number>('pageSize', { required: true })
 const search = defineModel<string | null>('search')
-const statusId = defineModel<string[]>('statusId')
-const categoryId = defineModel<string[]>('categoryId')
+const statuses = defineModel<string[]>('statuses')
+const recordTypes = defineModel<string[]>('recordTypes')
+const categoryIds = defineModel<string[]>('categoryIds')
 
 const props = defineProps<{
   data: any[]
   columns: TableColumn<unknown>[]
   loading: boolean
   total: number
-  statuses?: { label: string; value: string }[]
-  categories?: { label: string; value: string }[]
+  recordTypesSelect?: { label: string; value: string }[]
+  statusesSelect?: { label: string; value: string }[]
+  categoriesSelect?: { label: string; value: string }[]
   columnConfig: ColumnConfig[]
 }>()
 
@@ -23,16 +25,21 @@ const rowSelection = ref({})
 const columnVisibility = ref()
 const columnFilters = ref([])
 
-watch(categoryId, (newVal) => {
+watch(categoryIds, (newVal) => {
   if (newVal?.includes('all')) {
-    categoryId.value = []
+    categoryIds.value = []
   }
 })
 
-// Observa statusId e limpa se tiver valor undefined
-watch(statusId, (newVal) => {
+watch(statuses, (newVal) => {
   if (newVal?.includes('all')) {
-    statusId.value = []
+    statuses.value = []
+  }
+})
+
+watch(recordTypes, (newVal) => {
+  if (newVal?.includes('all')) {
+    recordTypes.value = []
   }
 })
 
@@ -72,19 +79,28 @@ const pagination = ref({
       </CustomersDeleteModal>
 
       <USelect
-        v-if="props.categories"
-        v-model="categoryId"
-        :items="[{ label: 'All', value: 'all' }, ...props.categories]"
-        placeholder="Category"
+        v-if="props.categoriesSelect"
+        v-model="categoryIds"
+        :items="[{ label: 'All', value: 'all' }, ...props.categoriesSelect]"
+        placeholder="Categoria"
         multiple
         class="min-w-48 max-w-48"
       />
 
       <USelect
-        v-if="props.statuses"
-        v-model="statusId"
-        :items="[{ label: 'All', value: 'all' }, ...props.statuses]"
+        v-if="props.statusesSelect"
+        v-model="statuses"
+        :items="[{ label: 'All', value: 'all' }, ...props.statusesSelect]"
         placeholder="Status"
+        multiple
+        class="min-w-28 max-w-28"
+      />
+
+      <USelect
+        v-if="props.recordTypesSelect"
+        v-model="recordTypes"
+        :items="[{ label: 'All', value: 'all' }, ...props.recordTypesSelect]"
+        placeholder="Tipos"
         multiple
         class="min-w-28 max-w-28"
       />

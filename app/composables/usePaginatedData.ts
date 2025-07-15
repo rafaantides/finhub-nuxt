@@ -81,7 +81,7 @@ export function usePaginatedData(
   return {
     data: items,
     total,
-    status,
+    fetchStatus: status,
     page,
     pageSize,
     orderBy,

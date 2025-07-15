@@ -47,6 +47,7 @@ const period = ref<Period>('daily')
 const totalCategory = ref<Category>({
   id: 'total',
   name: 'total',
+  // TODO: colocar numa config
   color: config.public.uncategorizedColor,
   description: 'Soma total de todas as categorias'
 })
@@ -71,8 +72,8 @@ const { data: response } = await useFetch<{ data: Category[] }>(
 )
 dataCategories.value = [totalCategory.value, ...(response.value?.data || [])]
 
-const { data } = useDebtSummary(period, range)
-const { data: stats } = useDebtStats(period, range)
+const { data } = useTransactionSummary(period, range)
+const { data: stats } = useTransactionStats(period, range)
 </script>
 
 <template>

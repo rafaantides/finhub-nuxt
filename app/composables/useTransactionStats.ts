@@ -9,10 +9,10 @@ type DataRecord = {
 
 const data = ref<DataRecord[]>([])
 
-export function useDebtSummary(period: Ref<Period>, range: Ref<Range>) {
+export function useTransactionStats(period: Ref<Period>, range: Ref<Range>) {
   const fetchData = async () => {
     const { data: response } = await useFetch<{ data: DataRecord[] }>(
-      '/api/debts/summary',
+      '/api/transactions/stats',
       {
         query: {
           period: period.value,

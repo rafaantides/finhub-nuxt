@@ -24,18 +24,9 @@ const links = computed(() => [
     //   }
     // },
     {
-      label: 'Faturas',
-      icon: 'i-lucide-wallet',
-      to: '/invoices',
-      active: route.path.startsWith('/invoices'),
-      onSelect: () => {
-        open.value = false
-      }
-    },
-    {
-      label: 'Débitos',
+      label: 'Transações',
       icon: 'i-lucide-credit-card',
-      to: '/debts',
+      to: '/transactions',
       onSelect: () => {
         open.value = false
       }

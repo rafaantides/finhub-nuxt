@@ -3,15 +3,15 @@ import { reactive, computed, watch } from 'vue'
 import { z } from 'zod'
 import { useToast } from '#imports'
 import type { FormSubmitEvent } from '#ui/types'
-import type { Debt } from '~/types/api'
+import type { Transaction } from '~/types/api'
 
 const open = defineModel<boolean>('open', { required: true })
 
 const props = defineProps<{
-  debt: Debt | null
-  invoiceId?: string
+  transaction: Transaction | null
   categories: { label: string; value: string }[]
   statuses: { label: string; value: string }[]
+  recordTypes: { label: string; value: string }[]
   refresh: () => void
 }>()
 
@@ -21,83 +21,72 @@ const schema = z.object({
   amount: z.number({
     required_error: 'Valor é obrigatório'
   }),
-  purchase_date: z.coerce.date({
-    required_error: 'Data de compra obrigatória'
+  record_date: z.coerce.date({
+    required_error: 'Data é obrigatória'
   }),
-  due_date: z.coerce.date().nullable(),
   category_id: z
     .string({
       required_error: 'Selecione uma categoria'
     })
     .uuid(),
-  status_id: z
-    .string({
-      required_error: 'Selecione um status'
-    })
-    .uuid()
+  status: z.string({
+    required_error: 'Selecione um status'
+  }),
+  record_type: z.string({
+    required_error: 'Selecione um tipo'
+  })
 })
 
 type Schema = z.output<typeof schema>
 
 const state = reactive<Partial<Schema>>({
-  invoice_id: props.invoiceId ?? undefined,
   title: undefined,
   amount: undefined,
-  purchase_date: undefined,
-  due_date: undefined,
+  record_date: undefined,
   category_id: undefined,
-  status_id: undefined
+  status: undefined,
+  record_type: undefined
 })
 
 watch(
-  () => props.debt,
-  (debt) => {
-    if (debt) {
-      state.invoice_id = debt.invoice?.id
-      state.title = debt.title
-      state.amount = debt.amount
-      state.purchase_date = new Date(debt.purchase_date)
-      state.due_date = debt.due_date ? new Date(debt.due_date) : undefined
-      state.category_id = debt.category?.id
-      state.status_id = debt.status?.id
+  () => props.transaction,
+  (transaction) => {
+    if (transaction) {
+      state.title = transaction.title
+      state.amount = transaction.amount
+      state.record_date = new Date(transaction.record_date)
+      state.category_id = transaction.category?.id
+      state.status = transaction.status
+      state.record_type = transaction.record_type
     }
   },
   { immediate: true }
 )
 
-const purchaseDate = computed({
+const recordDate = computed({
   get: () =>
-    state.purchase_date
-      ? state.purchase_date.toISOString().substring(0, 16)
-      : '',
+    state.record_date ? state.record_date.toISOString().substring(0, 16) : '',
   set: (val: string) => {
-    state.purchase_date = val ? new Date(val) : undefined
-  }
-})
-
-const dueDate = computed({
-  get: () => (state.due_date ? state.due_date.toISOString().split('T')[0] : ''),
-  set: (val: string) => {
-    state.due_date = val ? new Date(val) : undefined
+    state.record_date = val ? new Date(val) : undefined
   }
 })
 
 const toast = useToast()
 async function onSubmit(event: FormSubmitEvent<Schema>) {
-  const isEdit = Boolean(props.debt?.id)
-  const url = isEdit ? `/api/debts/${props.debt!.id}` : '/api/debts'
+  const isEdit = Boolean(props.transaction?.id)
+  const url = isEdit
+    ? `/api/transactions/${props.transaction!.id}`
+    : '/api/transactions'
   const method = isEdit ? 'PUT' : 'POST'
 
   try {
-    const { data } = await $fetch<{ data: Debt }>(url, {
+    const { data } = await $fetch<{ data: Transaction }>(url, {
       method,
       body: event.data
     })
 
     toast.add({
-      title: isEdit
-        ? 'Débito atualizado com sucesso'
-        : 'Débito criado com sucesso',
+      title: isEdit ? 'Item atualizado com sucesso' : 'Item criado com sucesso',
       description: `ID: ${data.id}`,
       color: 'success'
     })
@@ -105,7 +94,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     props.refresh()
   } catch (error: any) {
     toast.add({
-      title: isEdit ? 'Erro ao atualizar o débito' : 'Erro ao criar o débito',
+      title: isEdit ? 'Erro ao atualizar o item' : 'Erro ao criar o item',
       description: error?.data?.message || error.message,
       color: 'error'
     })
@@ -118,7 +107,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 <template>
   <UModal
     v-model:open="open"
-    :title="props.debt?.id ? `ID: ${props.debt.id}` : 'Novo Débito'"
+    :title="props.transaction?.id ? `ID: ${props.transaction.id}` : 'Novo Item'"
   >
     <template #body>
       <UForm
@@ -127,8 +116,17 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         class="space-y-4"
         @submit="onSubmit"
       >
-        <UFormField label="Invoice ID" name="invoice_id">
-          <UInput v-model="state.invoice_id" class="w-full" disabled />
+        <UFormField label="Data" name="record_date">
+          <UInput v-model="recordDate" type="datetime-local" class="w-full" />
+        </UFormField>
+
+        <UFormField label="Tipo" name="record_type">
+          <USelect
+            v-model="state.record_type"
+            :items="recordTypes"
+            placeholder="Selecione um tipo"
+            class="w-full"
+          />
         </UFormField>
 
         <UFormField label="Título" name="title">
@@ -137,10 +135,6 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
         <UFormField label="Valor" name="amount">
           <UInput v-model="state.amount" type="number" class="w-full" />
-        </UFormField>
-
-        <UFormField label="Data da compra" name="purchase_date">
-          <UInput v-model="purchaseDate" type="datetime-local" class="w-full" />
         </UFormField>
 
         <UFormField label="Categoria" name="category_id">
@@ -152,13 +146,9 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
           />
         </UFormField>
 
-        <UFormField label="Data de vencimento" name="due_date">
-          <UInput v-model="dueDate" type="date" class="w-full" />
-        </UFormField>
-
-        <UFormField label="Status" name="status_id">
+        <UFormField label="Status" name="status">
           <USelect
-            v-model="state.status_id"
+            v-model="state.status"
             :items="statuses"
             placeholder="Selecione um status"
             class="w-full"
