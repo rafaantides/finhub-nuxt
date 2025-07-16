@@ -1,30 +1,23 @@
 import type { Row } from '@tanstack/table-core'
-import type { Transaction } from '~/types/api'
+import type { Invoice } from '~/types/api'
 import type { ColumnConfig } from '~/types/table'
 
-export const transactionColumnsConfig: ColumnConfig[] = [
+export const invoiceColumnsConfig: ColumnConfig[] = [
   // { key: 'id', label: 'ID', sortable: true },
   {
-    key: 'record_date',
-    label: 'Data',
+    key: 'due_date',
+    label: 'Data de Vencimento',
     sortable: true,
     type: 'date'
   },
-  { key: 'record_type', label: 'Tipo', sortable: true, type: 'recordType' },
   { key: 'title', label: 'Título', sortable: true },
   { key: 'amount', label: 'Valor', sortable: true, type: 'currency' },
-  {
-    key: 'category',
-    label: 'Categoria',
-    sortable: true,
-    nestedKey: 'category.name'
-  },
   { key: 'status', label: 'Status', sortable: true, type: 'status' }
 ]
 
-export function getTransactionRowItems(
-  row: Row<Transaction>,
-  showDetails: (transaction: Transaction) => void,
+export function getInvoiceRowItems(
+  row: Row<Invoice>,
+  showDetails: (invoice: Invoice) => void,
   refresh: () => void
 ) {
   const toast = useToast()
@@ -56,6 +49,11 @@ export function getTransactionRowItems(
       }
     },
     {
+      label: 'Ver débitos',
+      icon: 'i-lucide-credit-card',
+      to: `/invoices/${row.original.id}/debts`
+    },
+    {
       type: 'separator'
     },
     {
@@ -64,20 +62,20 @@ export function getTransactionRowItems(
       color: 'error',
       async onSelect() {
         try {
-          await $fetch(`/api/transactions/${row.original.id}`, {
+          await $fetch(`/api/invoices/${row.original.id}`, {
             method: 'DELETE'
           })
 
           refresh()
 
           toast.add({
-            title: 'Item removido com sucesso',
+            title: 'Fatura removida com sucesso',
             description: `ID: ${row.original.id}`,
             color: 'success'
           })
         } catch (error: any) {
           toast.add({
-            title: 'Erro ao excluir o item',
+            title: 'Erro ao excluir a fatura',
             description: error?.data?.message || error.message,
             color: 'error'
           })

@@ -9,12 +9,14 @@ export interface Category {
   color: string
 }
 
-export interface Status {
-  name: string
-}
-
-export interface Kind {
-  name: string
+export interface Invoice {
+  id: string
+  title: string
+  amount: number
+  due_date: string
+  created_at: string
+  updated_at: string
+  status: PaymentStatus
 }
 
 export interface Transaction {
@@ -26,5 +28,9 @@ export interface Transaction {
   created_at: string
   updated_at: string
   status: string
+  invoice?: {
+    id: string
+    title: string
+  }
   category?: Category
 }

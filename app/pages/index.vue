@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { sub } from 'date-fns'
+import { startOfMonth, endOfMonth } from 'date-fns'
 import type { Period, Range } from '~/types'
 import type { Category } from '~/types/api'
 
@@ -38,16 +38,16 @@ const items = [
 const config = useRuntimeConfig()
 
 const range = shallowRef<Range>({
-  start: sub(new Date(), { days: 30 }),
-  end: new Date()
+  start: startOfMonth(new Date()), // primeiro dia do mês atual
+  end: endOfMonth(new Date()) // último dia do mês atual
 })
+
 const period = ref<Period>('daily')
 
 // TODO: ver se tem como pegar a cor primaria de outra forma
 const totalCategory = ref<Category>({
   id: 'total',
   name: 'total',
-  // TODO: colocar numa config
   color: config.public.uncategorizedColor,
   description: 'Soma total de todas as categorias'
 })

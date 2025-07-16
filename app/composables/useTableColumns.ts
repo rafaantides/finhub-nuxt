@@ -91,7 +91,7 @@ export function useTableColumns(
             }[statusName]
 
             const label = {
-              paid: 'Concluído',
+              paid: 'Pago',
               canceled: 'Cancelado',
               pending: 'Pendente'
             }[statusName]
