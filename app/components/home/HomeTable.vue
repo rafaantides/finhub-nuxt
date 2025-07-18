@@ -23,7 +23,7 @@ function getCategorySuggestedPercentage(categoryName: string): number | null {
 const columns: TableColumn<{
   category: string
   expense: number
-  transactions: number
+  expense_transactions: number
   average: number
   spendingShare: number
   // incomeImpact: number
@@ -49,10 +49,10 @@ const columns: TableColumn<{
     }
   },
   {
-    accessorKey: 'transactions',
+    accessorKey: 'expense_transactions',
     header: () => h('div', { class: 'text-center' }, 'Transações'),
     cell: ({ row }) =>
-      h('div', { class: 'text-center' }, row.getValue('transactions'))
+      h('div', { class: 'text-center' }, row.getValue('expense_transactions'))
   },
   {
     accessorKey: 'expense',
@@ -112,13 +112,13 @@ function processCategories(
     categories: {
       category: string
       expense: number
-      transactions: number
+      expense_transactions: number
     }[]
   }[]
 ) {
   const categoryMap = new Map<
     string,
-    { expense: number; transactions: number }
+    { expense: number; expense_transactions: number }
   >()
   let expense = 0
 
@@ -128,11 +128,12 @@ function processCategories(
     for (const cat of week.categories) {
       const current = categoryMap.get(cat.category) || {
         expense: 0,
-        transactions: 0
+        expense_transactions: 0
       }
       categoryMap.set(cat.category, {
         expense: current.expense + cat.expense,
-        transactions: current.transactions + cat.transactions
+        expense_transactions:
+          current.expense_transactions + cat.expense_transactions
       })
     }
   }
@@ -140,14 +141,16 @@ function processCategories(
   const result = []
   for (const [category, values] of categoryMap.entries()) {
     const average =
-      values.transactions > 0 ? values.expense / values.transactions : 0
+      values.expense_transactions > 0
+        ? values.expense / values.expense_transactions
+        : 0
     // const incomeImpact =
     //   totalIncome > 0 ? (values.total / totalIncome) * 100 : 0
     const spendingShare = expense > 0 ? (values.expense / expense) * 100 : 0
     result.push({
       category,
       expense: values.expense,
-      transactions: values.transactions,
+      expense_transactions: values.expense_transactions,
       average,
       spendingShare
       // incomeImpact

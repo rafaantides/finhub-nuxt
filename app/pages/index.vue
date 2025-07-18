@@ -35,8 +35,6 @@ const items = [
   ]
 ]
 
-const config = useRuntimeConfig()
-
 const range = shallowRef<Range>({
   start: startOfDay(setDate(addMonths(new Date(), -1), 6)), // dia 6 do mês anterior
   end: startOfDay(setDate(new Date(), 6)) // dia 6 do mês atual
@@ -45,11 +43,11 @@ const range = shallowRef<Range>({
 const period = ref<Period>('daily')
 
 // TODO: ver se tem como pegar a cor primaria de outra forma
-const totalCategory = ref<Category>({
-  id: 'total',
-  name: 'total',
-  color: config.public.uncategorizedColor,
-  description: 'Soma total de todas as categorias',
+const totalExpenseCategory = ref<Category>({
+  id: 'expense',
+  name: 'Gasto Total',
+  color: '',
+  description: 'Soma total dos gastos de todas as categorias',
   suggested_percentage: null
 })
 
@@ -60,7 +58,7 @@ onMounted(() => {
   const primaryColor = getComputedStyle(root)
     .getPropertyValue('--ui-primary')
     .trim()
-  totalCategory.value.color = primaryColor
+  totalExpenseCategory.value.color = primaryColor
 })
 
 const { data: response } = await useFetch<{ data: Category[] }>(
@@ -71,7 +69,10 @@ const { data: response } = await useFetch<{ data: Category[] }>(
     }
   }
 )
-dataCategories.value = [totalCategory.value, ...(response.value?.data || [])]
+dataCategories.value = [
+  totalExpenseCategory.value,
+  ...(response.value?.data || [])
+]
 
 const { data } = useTransactionSummary(period, range)
 const { data: dataStats } = useTransactionStats(period, range)
@@ -123,10 +124,7 @@ const { data: dataStats } = useTransactionStats(period, range)
         v-model:data="data"
         :categories="dataCategories"
       />
-      <HomeTable
-        v-model:data="data"
-        :categories="dataCategories"
-      />
+      <HomeTable v-model:data="data" :categories="dataCategories" />
     </template>
   </UDashboardPanel>
 </template>
