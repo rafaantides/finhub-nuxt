@@ -12,12 +12,14 @@ export default defineEventHandler(
         })
       }
 
-      const resource = form.find((f) => f.name === 'resource')?.data?.toString()
+      const invoiceId = form
+        .find((f) => f.name === 'invoice_id')
+        ?.data?.toString()
       const action = form.find((f) => f.name === 'action')?.data?.toString()
       const model = form.find((f) => f.name === 'model')?.data?.toString()
       const filePart = form.find((f) => f.name === 'file')
 
-      if (!resource || !action || !model || !filePart) {
+      if (!action || !model || !filePart) {
         sendError(
           event,
           createError({
@@ -32,7 +34,10 @@ export default defineEventHandler(
       const config = useRuntimeConfig()
 
       const formData = new FormData()
-      formData.append('resource', resource)
+      if (invoiceId && invoiceId !== '') {
+        formData.append('invoice_id', invoiceId)
+      }
+
       formData.append('action', action)
       formData.append('model', model)
       formData.append(

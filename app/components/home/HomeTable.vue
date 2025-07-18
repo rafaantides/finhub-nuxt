@@ -14,12 +14,19 @@ function getCategoryColor(categoryName: string): string {
   const category = props.categories.find((cat) => cat.name === categoryName)
   return category?.color ?? config.public.uncategorizedColor
 }
+
+function getCategorySuggestedPercentage(categoryName: string): number | null {
+  const category = props.categories.find((cat) => cat.name === categoryName)
+  return category?.suggested_percentage ?? null
+}
+
 const columns: TableColumn<{
   category: string
-  total: number
+  expense: number
   transactions: number
   average: number
-  percentage: number
+  spendingShare: number
+  // incomeImpact: number
 }>[] = [
   {
     accessorKey: 'category',
@@ -48,11 +55,11 @@ const columns: TableColumn<{
       h('div', { class: 'text-center' }, row.getValue('transactions'))
   },
   {
-    accessorKey: 'total',
+    accessorKey: 'expense',
     header: () => h('div', { class: 'text-center' }, 'Total'),
     cell: ({ row }) => {
-      const total = Number(row.getValue('total'))
-      return h('div', { class: 'text-center' }, `R$${total.toFixed(2)}`)
+      const expense = Number(row.getValue('expense'))
+      return h('div', { class: 'text-center' }, `R$${expense.toFixed(2)}`)
     }
   },
   {
@@ -64,11 +71,36 @@ const columns: TableColumn<{
     }
   },
   {
-    accessorKey: 'percentage',
-    header: () => h('div', { class: 'text-center' }, 'Porcentagem'),
+    accessorKey: 'incomeImpact',
+    header: () => h('div', { class: 'text-center' }, 'Impacto na Receita'),
     cell: ({ row }) => {
-      const percentage = Number(row.getValue('percentage'))
-      return h('div', { class: 'text-center' }, `${percentage.toFixed(2)}%`)
+      const category = String(row.getValue('category'))
+      const suggested = Number(getCategorySuggestedPercentage(category))
+      const incomeImpact = Number(row.getValue('incomeImpact'))
+
+      let colorClass = 'text-gray-500' // valor padrão
+
+      if (!isNaN(suggested) && suggested) {
+        if (incomeImpact < suggested) {
+          colorClass = 'text-green-500' // abaixo do limite
+        } else if (incomeImpact === suggested) {
+          colorClass = 'text-yellow-500' // exatamente o limite
+        } else if (incomeImpact > suggested) {
+          colorClass = 'text-red-500' // estourou o limite
+        }
+      }
+
+      return h(
+        'div',
+        {
+          class: `text-center font-medium ${colorClass}`,
+          title:
+            !isNaN(suggested) && suggested
+              ? `Sugerido: ${suggested.toFixed(2)}%`
+              : 'Sem sugestão definida'
+        },
+        `${incomeImpact.toFixed(2)}%`
+      )
     }
   }
 ]
@@ -76,27 +108,30 @@ const columns: TableColumn<{
 function processCategories(
   data: {
     date: string
-    total: number
+    expense: number
     categories: {
       category: string
-      total: number
+      expense: number
       transactions: number
     }[]
   }[]
 ) {
-  const categoryMap = new Map<string, { total: number; transactions: number }>()
-  let totalGeral = 0
+  const categoryMap = new Map<
+    string,
+    { expense: number; transactions: number }
+  >()
+  let expense = 0
 
   for (const week of data) {
-    totalGeral += week.total
+    expense += week.expense
 
     for (const cat of week.categories) {
       const current = categoryMap.get(cat.category) || {
-        total: 0,
+        expense: 0,
         transactions: 0
       }
       categoryMap.set(cat.category, {
-        total: current.total + cat.total,
+        expense: current.expense + cat.expense,
         transactions: current.transactions + cat.transactions
       })
     }
@@ -105,19 +140,22 @@ function processCategories(
   const result = []
   for (const [category, values] of categoryMap.entries()) {
     const average =
-      values.transactions > 0 ? values.total / values.transactions : 0
-    const percentage = totalGeral > 0 ? (values.total / totalGeral) * 100 : 0
+      values.transactions > 0 ? values.expense / values.transactions : 0
+    // const incomeImpact =
+    //   totalIncome > 0 ? (values.total / totalIncome) * 100 : 0
+    const spendingShare = expense > 0 ? (values.expense / expense) * 100 : 0
     result.push({
       category,
-      total: values.total,
+      expense: values.expense,
       transactions: values.transactions,
       average,
-      percentage
+      spendingShare
+      // incomeImpact
     })
   }
 
   // Ordenar por porcentagem decrescente
-  return result.sort((a, b) => b.percentage - a.percentage)
+  return result.sort((a, b) => b.spendingShare - a.spendingShare)
 }
 </script>
 

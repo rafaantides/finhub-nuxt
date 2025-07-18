@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { startOfMonth, endOfMonth } from 'date-fns'
+import { setDate, addMonths, startOfDay } from 'date-fns'
 import type { Period, Range } from '~/types'
 import type { Category } from '~/types/api'
 
@@ -38,8 +38,8 @@ const items = [
 const config = useRuntimeConfig()
 
 const range = shallowRef<Range>({
-  start: startOfMonth(new Date()), // primeiro dia do mês atual
-  end: endOfMonth(new Date()) // último dia do mês atual
+  start: startOfDay(setDate(addMonths(new Date(), -1), 6)), // dia 6 do mês anterior
+  end: startOfDay(setDate(new Date(), 6)) // dia 6 do mês atual
 })
 
 const period = ref<Period>('daily')
@@ -49,7 +49,8 @@ const totalCategory = ref<Category>({
   id: 'total',
   name: 'total',
   color: config.public.uncategorizedColor,
-  description: 'Soma total de todas as categorias'
+  description: 'Soma total de todas as categorias',
+  suggested_percentage: null
 })
 
 const dataCategories = ref<Category[]>([])
@@ -73,7 +74,7 @@ const { data: response } = await useFetch<{ data: Category[] }>(
 dataCategories.value = [totalCategory.value, ...(response.value?.data || [])]
 
 const { data } = useTransactionSummary(period, range)
-const { data: stats } = useTransactionStats(period, range)
+const { data: dataStats } = useTransactionStats(period, range)
 </script>
 
 <template>
@@ -115,14 +116,17 @@ const { data: stats } = useTransactionStats(period, range)
     </template>
 
     <template #body>
-      <HomeStats v-model:data="stats" :period="period" :range="range" />
+      <HomeStats v-model:data="dataStats" :period="period" :range="range" />
       <HomeChart
         v-if="dataCategories.length"
         v-model:period="period"
         v-model:data="data"
         :categories="dataCategories"
       />
-      <HomeTable v-model:data="data" :categories="dataCategories" />
+      <HomeTable
+        v-model:data="data"
+        :categories="dataCategories"
+      />
     </template>
   </UDashboardPanel>
 </template>

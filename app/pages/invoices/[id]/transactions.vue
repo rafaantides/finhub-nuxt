@@ -2,10 +2,6 @@
 import { usePaginatedData } from '~/composables/usePaginatedData'
 import { useTableColumns } from '~/composables/useTableColumns'
 import type { Transaction, ApiResponse, Category } from '~/types/api'
-import {
-  transactionColumnsConfig,
-  getTransactionRowItems
-} from '~/composables/useTransaction'
 
 const components = {
   UBadge: resolveComponent('UBadge') as Component,
@@ -17,6 +13,7 @@ const components = {
 const selectedData = ref<Transaction | null>(null)
 const isDetailModalOpen = ref(false)
 const isNewModalOpen = ref(false)
+const isUploadModalOpen = ref(false)
 
 const showDetails = (transaction: Transaction) => {
   selectedData.value = transaction
@@ -102,6 +99,11 @@ const recordTypesSelect = computed(() => [
             icon="i-lucide-plus"
             @click="isNewModalOpen = true"
           />
+          <UButton
+            label="Adicionar Planilha"
+            icon="i-lucide-file-input"
+            @click="isUploadModalOpen = true"
+          />
           <TransactionsUpsertModal
             v-model:open="isNewModalOpen"
             :transaction="null"
@@ -109,8 +111,13 @@ const recordTypesSelect = computed(() => [
             :categories="categoriesSelect"
             :statuses="statusesSelect"
             :refresh="refresh"
-            :invoice-id="id"
             @close="isNewModalOpen = false"
+          />
+          <TransactionsUploadModal
+            v-model:open="isUploadModalOpen"
+            :refresh="refresh"
+            :invoice-id="id ?? null"
+            @close="isUploadModalOpen = false"
           />
         </template>
       </UDashboardNavbar>

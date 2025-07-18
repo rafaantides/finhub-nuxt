@@ -49,9 +49,9 @@ export function getInvoiceRowItems(
       }
     },
     {
-      label: 'Ver débitos',
+      label: 'Ver transações',
       icon: 'i-lucide-credit-card',
-      to: `/invoices/${row.original.id}/debts`
+      to: `/invoices/${row.original.id}/transactions`
     },
     {
       type: 'separator'

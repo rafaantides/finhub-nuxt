@@ -7,6 +7,7 @@ export interface Category {
   name: string
   description: string
   color: string
+  suggested_percentage: number | null
 }
 
 export interface Invoice {

@@ -25,11 +25,11 @@ const chartData = computed(() => {
   return data.value.map((entry: any) => {
     const obj: Record<string, number | Date> = {
       date: new Date(entry.date),
-      total: entry.total
+      expense: entry.expense
     }
 
     entry.categories.forEach((cat: any) => {
-      obj[cat.category] = cat.total
+      obj[cat.category] = cat.expense
     })
 
     return obj
@@ -104,7 +104,7 @@ const tooltip = (d: DataRecord) => {
           :x="x"
           :y="y(category.name)"
           :color="category.color"
-          :stroke-width="category.name === 'total' ? 2 : 1"
+          :stroke-width="category.name === 'expense' ? 2 : 1"
           :stroke-dasharray="0"
         />
         <VisArea

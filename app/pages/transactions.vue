@@ -2,10 +2,6 @@
 import { usePaginatedData, getQueryParam } from '~/composables/usePaginatedData'
 import { useTableColumns } from '~/composables/useTableColumns'
 import type { Transaction, ApiResponse, Category } from '~/types/api'
-import {
-  transactionColumnsConfig,
-  getTransactionRowItems
-} from '~/composables/useTransaction'
 
 useHead({
   title: 'Dashboard | Transações',

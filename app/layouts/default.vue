@@ -40,14 +40,6 @@ const links = computed(() => [
         open.value = false
       }
     },
-    {
-      label: 'Importação',
-      icon: 'i-lucide-file-input',
-      to: '/upload',
-      onSelect: () => {
-        open.value = false
-      }
-    },
     // {
     //   label: 'Customers',
     //   icon: 'i-lucide-users',
