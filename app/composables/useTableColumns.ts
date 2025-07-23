@@ -71,7 +71,8 @@ export function useTableColumns(
 
           if (col.type === 'date') {
             return value
-              ? new Date(value).toLocaleDateString('pt-BR')
+              ? // new Date(value).toLocaleDateString('pt-BR')
+                formatDateUTC(value)
               : 'Sem data'
           }
 

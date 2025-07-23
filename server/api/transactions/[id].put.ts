@@ -8,11 +8,14 @@ export default defineEventHandler(
     const body = await readBody<Partial<Transaction>>(event)
 
     try {
-      const response = await $fetch.raw<Transaction>(`/transactions/${id}`, {
-        method: 'PUT',
-        baseURL: config.apiBaseUrl,
-        body
-      })
+      const response = await $fetch.raw<Transaction>(
+        `/api/v1/transactions/${id}`,
+        {
+          method: 'PUT',
+          baseURL: config.apiBaseUrl,
+          body
+        }
+      )
 
       return {
         data: response._data ?? null

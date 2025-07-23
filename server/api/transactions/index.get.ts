@@ -6,7 +6,7 @@ export default defineEventHandler(
     const config = useRuntimeConfig()
 
     try {
-      const response = await $fetch.raw<Transaction[]>('/transactions', {
+      const response = await $fetch.raw<Transaction[]>('/api/v1/transactions', {
         baseURL: config.apiBaseUrl,
         query: getQuery(event)
       })

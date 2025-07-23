@@ -6,7 +6,7 @@ export default defineEventHandler(
     const { page, page_size } = getQuery(event)
 
     try {
-      const response = await $fetch.raw<Category[]>('/categories', {
+      const response = await $fetch.raw<Category[]>('/api/v1/categories', {
         baseURL: config.apiBaseUrl,
         query: {
           page,

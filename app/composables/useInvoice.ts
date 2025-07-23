@@ -49,7 +49,7 @@ export function getInvoiceRowItems(
       }
     },
     {
-      label: 'Ver transações',
+      label: 'Transações',
       icon: 'i-lucide-credit-card',
       to: `/invoices/${row.original.id}/transactions`
     },

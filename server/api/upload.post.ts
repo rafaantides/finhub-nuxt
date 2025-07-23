@@ -46,7 +46,7 @@ export default defineEventHandler(
         filePart.filename || 'arquivo.csv'
       )
 
-      const response = await $fetch.raw('/upload', {
+      const response = await $fetch.raw('/api/v1/upload', {
         method: 'POST',
         baseURL: config.apiBaseUrl,
         body: formData

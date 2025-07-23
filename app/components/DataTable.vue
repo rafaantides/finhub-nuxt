@@ -65,7 +65,7 @@ const pagination = ref({
       >
         <UButton
           v-if="table?.tableApi?.getFilteredSelectedRowModel().rows.length"
-          label="Delete"
+          label="Excluir"
           color="error"
           variant="subtle"
           icon="i-lucide-trash"

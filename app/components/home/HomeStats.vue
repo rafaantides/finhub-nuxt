@@ -5,34 +5,34 @@ function formatCurrency(value: number): string {
   return value.toLocaleString('pt-BR', {
     style: 'currency',
     currency: 'BRL',
-    maximumFractionDigits: 0
+    maximumFractionDigits: 2
   })
-}
-
-function formatDecimal(value: number): string {
-  return value.toFixed(2).replace('.', ',')
 }
 
 const stats = computed(() => [
   {
-    title: 'Valor Total',
-    icon: 'i-lucide-circle-dollar-sign',
-    value: formatCurrency(data.value?.total_amount ?? 0)
+    title: 'Entradas',
+    icon: 'i-lucide-arrow-down-circle',
+    value: formatCurrency(data.value?.income ?? 0),
+    isNegative: false
+  },
+  {
+    title: 'Saídas',
+    icon: 'i-lucide-arrow-up-circle',
+    value: formatCurrency(data.value?.expense ?? 0),
+    isNegative: false
   },
   {
     title: 'Compras',
     icon: 'i-lucide-shopping-cart',
-    value: data.value?.total_transactions ?? 0
+    value: data.value?.expense_transactions ?? 0,
+    isNegative: false
   },
   {
-    title: 'Estabelecimentos',
-    icon: 'i-lucide-building-2',
-    value: data.value?.unique_establishments ?? 0
-  },
-  {
-    title: 'Média por Compra',
-    icon: 'i-lucide-divide',
-    value: formatDecimal(data.value?.average_per_transaction ?? 0)
+    title: 'Saldo',
+    icon: 'i-lucide-circle-dollar-sign',
+    value: formatCurrency(data.value?.balance ?? 0),
+    isNegative: (data.value?.balance ?? 0) < 0
   }
 ])
 </script>
@@ -54,7 +54,12 @@ const stats = computed(() => [
       class="lg:rounded-none first:rounded-l-[calc(var(--ui-radius)*2)] last:rounded-r-[calc(var(--ui-radius)*2)] hover:z-1"
     >
       <div class="flex items-center gap-2">
-        <span class="text-2xl font-semibold text-(--ui-text-highlighted)">
+        <span
+          class="text-2xl font-semibold"
+          :class="
+            stat.isNegative ? 'text-red-500' : 'text-(--ui-text-highlighted)'
+          "
+        >
           {{ stat.value }}
         </span>
       </div>

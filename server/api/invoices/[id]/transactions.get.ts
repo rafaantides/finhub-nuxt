@@ -7,10 +7,13 @@ export default defineEventHandler(
     const id = getRouterParam(event, 'id')
 
     try {
-      const response = await $fetch.raw<Transaction[]>(`invoices/${id}/transactions`, {
-        baseURL: config.apiBaseUrl,
-        query: getQuery(event)
-      })
+      const response = await $fetch.raw<Transaction[]>(
+        `/api/v1/invoices/${id}/transactions`,
+        {
+          baseURL: config.apiBaseUrl,
+          query: getQuery(event)
+        }
+      )
 
       const total = response.headers.get('X-Total-Count')
       return {

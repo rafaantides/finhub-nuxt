@@ -25,7 +25,7 @@ const chartData = computed(() => {
   return data.value.map((entry: any) => {
     const obj: Record<string, number | Date> = {
       date: new Date(entry.date),
-      'Gasto Total': entry.expense
+      'Total': entry.expense
     }
 
     entry.categories.forEach((cat: any) => {

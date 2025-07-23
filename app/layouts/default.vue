@@ -3,6 +3,7 @@ const route = useRoute()
 const toast = useToast()
 
 const open = ref(false)
+const config = useRuntimeConfig()
 
 const links = computed(() => [
   [
@@ -88,15 +89,15 @@ const links = computed(() => [
   ],
   [
     {
-      label: 'Feedback',
+      label: 'Linkedin',
       icon: 'i-lucide-message-circle',
-      to: 'https://github.com/nuxt-ui-pro/dashboard',
+      to: 'https://www.linkedin.com/in/rafaantides',
       target: '_blank'
     },
     {
-      label: 'Help & Support',
-      icon: 'i-lucide-info',
-      to: 'https://github.com/nuxt/ui-pro',
+      label: 'Documentação',
+      icon: 'i-lucide-book-open',
+      to: `${config.apiBaseUrl}/docs/v1`,
       target: '_blank'
     }
   ]

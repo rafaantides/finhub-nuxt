@@ -45,7 +45,7 @@ const period = ref<Period>('daily')
 // TODO: ver se tem como pegar a cor primaria de outra forma
 const totalExpenseCategory = ref<Category>({
   id: 'expense',
-  name: 'Gasto Total',
+  name: 'Total',
   color: '',
   description: 'Soma total dos gastos de todas as categorias',
   suggested_percentage: null

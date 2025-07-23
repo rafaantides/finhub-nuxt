@@ -5,7 +5,7 @@ export default defineEventHandler(async (event): Promise<void> => {
   const id = getRouterParam(event, 'id')
 
   try {
-    await $fetch.raw(`/transactions/${id}`, {
+    await $fetch.raw(`/api/v1/transactions/${id}`, {
       method: 'DELETE',
       baseURL: config.apiBaseUrl
     })

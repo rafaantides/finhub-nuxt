@@ -7,7 +7,7 @@ export default defineEventHandler(
     const body = await readBody<Partial<Transaction>>(event)
 
     try {
-      const response = await $fetch.raw<Transaction>(`/transactions`, {
+      const response = await $fetch.raw<Transaction>(`/api/v1/transactions`, {
         method: 'POST',
         baseURL: config.apiBaseUrl,
         body

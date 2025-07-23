@@ -6,7 +6,7 @@ export default defineEventHandler(
     const config = useRuntimeConfig()
 
     try {
-      const response = await $fetch.raw<Invoice[]>('/invoices', {
+      const response = await $fetch.raw<Invoice[]>('/api/v1/invoices', {
         baseURL: config.apiBaseUrl,
         query: getQuery(event)
       })

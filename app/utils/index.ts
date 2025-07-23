@@ -18,3 +18,10 @@ export function toSelectOptions<T extends { id: string; name: string }>(
     })) ?? []
   )
 }
+
+export function formatDateUTC(dateString: string): string {
+  const date = new Date(dateString)
+  return `${String(date.getUTCDate()).padStart(2, '0')}/${String(
+    date.getUTCMonth() + 1
+  ).padStart(2, '0')}/${date.getUTCFullYear()}`
+}
