@@ -2,6 +2,7 @@
 import { usePaginatedData, getQueryParam } from '~/composables/usePaginatedData'
 import { useTableColumns } from '~/composables/useTableColumns'
 import type { Transaction, ApiResponse, Category } from '~/types/api'
+import type { Range } from '~/types'
 
 useHead({
   title: 'Dashboard | Transações',
@@ -38,6 +39,22 @@ const statuses = getQueryParam('statuses')
 const recordTypes = getQueryParam('record_types')
 const categoryIds = getQueryParam('category_ids')
 
+const range = shallowRef<Range>({
+  start: null,
+  end: null
+})
+
+const formatDate = (date: Date | null) =>
+  date
+    ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+        2,
+        '0'
+      )}-${String(date.getDate()).padStart(2, '0')}`
+    : null
+
+const startDate = computed(() => formatDate(range.value.start))
+const endDate = computed(() => formatDate(range.value.end))
+
 const {
   data,
   total,
@@ -51,7 +68,9 @@ const {
 } = usePaginatedData('transactions', [
   { key: 'statuses', ref: statuses },
   { key: 'record_types', ref: recordTypes },
-  { key: 'category_ids', ref: categoryIds }
+  { key: 'category_ids', ref: categoryIds },
+  { key: 'start_date', ref: startDate },
+  { key: 'end_date', ref: endDate }
 ])
 
 const columns = useTableColumns(
@@ -82,7 +101,8 @@ const statusesSelect = computed(() => [
 
 const recordTypesSelect = computed(() => [
   { label: 'Entrada', value: 'income' },
-  { label: 'Saída', value: 'expense' }
+  { label: 'Saída', value: 'expense' },
+  { label: 'Imposto', value: 'tax' }
 ])
 </script>
 
@@ -130,6 +150,7 @@ const recordTypesSelect = computed(() => [
         v-model:statuses="statuses"
         v-model:record-types="recordTypes"
         v-model:category-ids="categoryIds"
+        v-model:range="range"
         :data="data"
         :columns="columns"
         :loading="fetchStatus === 'pending'"

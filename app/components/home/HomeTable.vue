@@ -8,18 +8,6 @@ const props = defineProps<{
   categories: Category[]
 }>()
 
-const config = useRuntimeConfig()
-
-function getCategoryColor(categoryName: string): string {
-  const category = props.categories.find((cat) => cat.name === categoryName)
-  return category?.color ?? config.public.uncategorizedColor
-}
-
-function getCategorySuggestedPercentage(categoryName: string): number | null {
-  const category = props.categories.find((cat) => cat.name === categoryName)
-  return category?.suggested_percentage ?? null
-}
-
 const columns: TableColumn<{
   category: string
   expense: number
@@ -34,7 +22,7 @@ const columns: TableColumn<{
     header: () => 'Categoria',
     cell: ({ row }) => {
       const category = String(row.getValue('category'))
-      const color = getCategoryColor(category)
+      const color = getCategoryColor(category, props.categories)
       return h('div', { class: 'flex items-center' }, [
         h('div', {
           class: 'w-3 h-2.5 mr-2 rounded-sm',
@@ -68,7 +56,9 @@ const columns: TableColumn<{
     header: () => h('div', { class: 'text-center' }, 'Impacto na Receita'),
     cell: ({ row }) => {
       const category = String(row.getValue('category'))
-      const suggested = Number(getCategorySuggestedPercentage(category))
+      const suggested = Number(
+        getCategorySuggestedPercentage(category, props.categories)
+      )
       const incomeImpact = Number(row.getValue('incomeImpact'))
 
       let colorClass = 'text-gray-500'
@@ -117,7 +107,9 @@ const columns: TableColumn<{
     header: () => h('div', { class: 'text-center' }, 'Diferença'),
     cell: ({ row }) => {
       const category = String(row.getValue('category'))
-      const suggested = Number(getCategorySuggestedPercentage(category))
+      const suggested = Number(
+        getCategorySuggestedPercentage(category, props.categories)
+      )
       const diff = Number(row.getValue('remainingOrMissing'))
       const prefix = diff > 0 ? '+' : ''
 
@@ -139,99 +131,11 @@ const columns: TableColumn<{
     }
   }
 ]
-
-function processCategories(
-  data: {
-    date: string
-    income: number
-    expense: number
-    categories: {
-      category: string
-      expense: number
-      expense_transactions: number
-    }[]
-  }[]
-) {
-  const categoryMap = new Map<
-    string,
-    { expense: number; expense_transactions: number }
-  >()
-  let income = 0
-  let expense = 0
-
-  for (const week of data) {
-    income += week.income
-    expense += week.expense
-
-    for (const cat of week.categories) {
-      const current = categoryMap.get(cat.category) || {
-        expense: 0,
-        expense_transactions: 0
-      }
-      categoryMap.set(cat.category, {
-        expense: current.expense + cat.expense,
-        expense_transactions:
-          current.expense_transactions + cat.expense_transactions
-      })
-    }
-  }
-
-  const result = []
-  let totalExpense = 0
-  let totalTransactions = 0
-  let totalSuggestedExpense = 0
-
-  for (const [category, values] of categoryMap.entries()) {
-    const incomeImpact = income > 0 ? (values.expense / income) * 100 : 0
-    const spendingShare = expense > 0 ? (values.expense / expense) * 100 : 0
-    const suggestedPercentage = getCategorySuggestedPercentage(category) || 0
-
-    const suggestedExpense = (income * suggestedPercentage) / 100
-    const remainingOrMissing = suggestedExpense - values.expense
-
-    // Acumula para o total
-    totalExpense += values.expense
-    totalTransactions += values.expense_transactions
-    totalSuggestedExpense += suggestedExpense
-
-    result.push({
-      category,
-      expense: values.expense,
-      expense_transactions: values.expense_transactions,
-      spendingShare,
-      incomeImpact,
-      suggestedExpense,
-      remainingOrMissing
-    })
-  }
-
-  // Adiciona a categoria "Total" no final
-  const totalIncomeImpact = income > 0 ? (totalExpense / income) * 100 : 0
-  const totalSpendingShare = expense > 0 ? (totalExpense / expense) * 100 : 0
-  const totalRemainingOrMissing = totalSuggestedExpense - totalExpense
-
-  result.push({
-    category: 'Total',
-    expense: totalExpense,
-    expense_transactions: totalTransactions,
-    spendingShare: totalSpendingShare,
-    incomeImpact: totalIncomeImpact,
-    suggestedExpense: totalSuggestedExpense,
-    remainingOrMissing: totalRemainingOrMissing
-  })
-
-  return result.sort((a, b) => {
-    // Mantém "Total" sempre no final
-    if (a.category === 'Total') return 1
-    if (b.category === 'Total') return -1
-    return b.spendingShare - a.spendingShare
-  })
-}
 </script>
 
 <template>
   <UTable
-    :data="processCategories(data)"
+    :data="processCategories(data, props.categories)"
     :columns="columns"
     class="shrink-0"
     :ui="{

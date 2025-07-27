@@ -105,18 +105,20 @@ export function useTableColumns(
           }
 
           if (col.type === 'recordType') {
-            type RecordTypeName = 'income' | 'expense'
+            type RecordTypeName = 'income' | 'expense' | 'tax'
 
-            const recordTypeName = (value || 'income') as RecordTypeName
+            const recordTypeName = (value || 'expense') as RecordTypeName
 
             const color = {
               income: 'success',
-              expense: 'error'
+              expense: 'error',
+              tax: 'warning'
             }[recordTypeName]
 
             const label = {
               income: 'Entrada',
-              expense: 'Saída'
+              expense: 'Saída',
+              tax: 'Imposto'
             }[recordTypeName]
 
             return h(

@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import type { TableColumn } from '@nuxt/ui'
 import type { ColumnConfig } from '~/types/table'
+// import type { Range } from '~/types'
 
 const currentPage = defineModel<number>('currentPage', { required: true })
 const pageSize = defineModel<number>('pageSize', { required: true })
+// const range = defineModel<Range>('range', { required: true })
 const search = defineModel<string | null>('search')
 const statuses = defineModel<string[]>('statuses')
 const recordTypes = defineModel<string[]>('recordTypes')
@@ -77,6 +79,8 @@ const pagination = ref({
           </template>
         </UButton>
       </CustomersDeleteModal>
+
+      <!-- <HomeDateRangePicker v-model="range" class="-ms-1" /> -->
 
       <USelect
         v-if="props.categoriesSelect"

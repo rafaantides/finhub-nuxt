@@ -16,8 +16,10 @@ export function useTransactionStats(period: Ref<Period>, range: Ref<Range>) {
       {
         query: {
           period: period.value,
-          start_date: range.value.start.toISOString(),
-          end_date: range.value.end.toISOString()
+          start_date: range.value.start
+            ? range.value.start.toISOString()
+            : null,
+          end_date: range.value.end ? range.value.end.toISOString() : null
         }
       }
     )

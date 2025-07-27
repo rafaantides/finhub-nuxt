@@ -61,6 +61,6 @@ export type DataRecord = {
 export type Period = 'daily' | 'weekly' | 'monthly'
 
 export interface Range {
-  start: Date
-  end: Date
+  start: Date | null
+  end: Date | null
 }

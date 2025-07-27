@@ -23,11 +23,17 @@ const stats = computed(() => [
     isNegative: false
   },
   {
-    title: 'Compras',
-    icon: 'i-lucide-shopping-cart',
-    value: data.value?.expense_transactions ?? 0,
+    title: 'Taxas',
+    icon: 'i-lucide-arrow-up-circle',
+    value: formatCurrency(data.value?.tax ?? 0),
     isNegative: false
   },
+  // {
+  //   title: 'Compras',
+  //   icon: 'i-lucide-shopping-cart',
+  //   value: data.value?.expense_transactions ?? 0,
+  //   isNegative: false
+  // },
   {
     title: 'Saldo',
     icon: 'i-lucide-circle-dollar-sign',

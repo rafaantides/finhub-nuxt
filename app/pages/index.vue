@@ -36,11 +36,16 @@ const items = [
 ]
 
 const range = shallowRef<Range>({
-  start: startOfDay(setDate(addMonths(new Date(), -1), 6)), // dia 6 do mês anterior
-  end: startOfDay(setDate(new Date(), 6)) // dia 6 do mês atual
+  start: startOfDay(setDate(addMonths(new Date(), -1), 6)),
+  end: startOfDay(setDate(new Date(), 6))
 })
 
 const period = ref<Period>('daily')
+const dateField = ref<'record_date' | 'due_date'>('record_date')
+const dateFieldOptions = [
+  { label: 'Data do Registro', value: 'record_date' },
+  { label: 'Data de Vencimento', value: 'due_date' }
+]
 
 // TODO: ver se tem como pegar a cor primaria de outra forma
 const totalExpenseCategory = ref<Category>({
@@ -74,7 +79,7 @@ dataCategories.value = [
   ...(response.value?.data || [])
 ]
 
-const { data } = useTransactionSummary(period, range)
+const { data } = useTransactionSummary(period, range, dateField)
 const { data: dataStats } = useTransactionStats(period, range)
 </script>
 
@@ -110,7 +115,18 @@ const { data: dataStats } = useTransactionStats(period, range)
         <template #left>
           <!-- NOTE: The `-ms-1` class is used to align with the `DashboardSidebarCollapse` button here. -->
           <HomeDateRangePicker v-model="range" class="-ms-1" />
-
+          <USelect
+            v-model="dateField"
+            :items="dateFieldOptions"
+            variant="ghost"
+            class="data-[state=open]:bg-(--ui-bg-elevated)"
+            :ui="{
+              value: 'capitalize',
+              itemLabel: 'capitalize',
+              trailingIcon:
+                'group-data-[state=open]:rotate-180 transition-transform duration-200'
+            }"
+          />
           <HomePeriodSelect v-model="period" :range="range" />
         </template>
       </UDashboardToolbar>
