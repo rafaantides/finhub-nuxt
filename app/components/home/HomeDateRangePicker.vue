@@ -14,12 +14,10 @@ const df = new DateFormatter('en-US', {
 const selected = defineModel<Range>({ required: true })
 
 const ranges = [
-  { label: 'Last 7 days', days: 7 },
-  { label: 'Last 14 days', days: 14 },
-  { label: 'Last 30 days', days: 30 },
-  { label: 'Last 3 months', months: 3 },
-  { label: 'Last 6 months', months: 6 },
-  { label: 'Last year', years: 1 }
+  { label: '7 dias', days: 7 },
+  { label: '30 dias', days: 30 },
+  { label: '2 meses', months: 2 },
+  { label: '1 ano', years: 1 }
 ]
 
 const toCalendarDate = (date: Date) => {

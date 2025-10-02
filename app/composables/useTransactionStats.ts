@@ -9,7 +9,11 @@ type DataRecord = {
 
 const data = ref<DataRecord[]>([])
 
-export function useTransactionStats(period: Ref<Period>, range: Ref<Range>) {
+export function useTransactionStats(
+  period: Ref<Period>,
+  range: Ref<Range>,
+  dateField: Ref<'record_date' | 'due_date'>
+) {
   const fetchData = async () => {
     const { data: response } = await useFetch<{ data: DataRecord[] }>(
       '/api/transactions/stats',
@@ -19,7 +23,8 @@ export function useTransactionStats(period: Ref<Period>, range: Ref<Range>) {
           start_date: range.value.start
             ? range.value.start.toISOString()
             : null,
-          end_date: range.value.end ? range.value.end.toISOString() : null
+          end_date: range.value.end ? range.value.end.toISOString() : null,
+          date_field: dateField.value
         }
       }
     )

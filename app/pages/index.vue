@@ -36,8 +36,8 @@ const items = [
 ]
 
 const range = shallowRef<Range>({
-  start: startOfDay(setDate(addMonths(new Date(), -1), 6)),
-  end: startOfDay(setDate(new Date(), 6))
+  start: startOfDay(setDate(addMonths(new Date(), -1), 5)),
+  end: startOfDay(setDate(new Date(), 15))
 })
 
 const period = ref<Period>('daily')
@@ -80,7 +80,7 @@ dataCategories.value = [
 ]
 
 const { data } = useTransactionSummary(period, range, dateField)
-const { data: dataStats } = useTransactionStats(period, range)
+const { data: dataStats } = useTransactionStats(period, range, dateField)
 </script>
 
 <template>
