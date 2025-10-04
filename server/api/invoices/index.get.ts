@@ -5,13 +5,13 @@ import type { ApiResponse, Invoice } from '~/types/api'
 export default defineEventHandler(
   async (event): Promise<ApiResponse<Invoice[]>> => {
     try {
-      const response = await fetchWithAuth<Invoice[]>(
-        event,
-        '/api/v1/invoices',
-        {
+      const response = await fetchWithAuth<Invoice[]>(event, {
+        method: 'GET',
+        path: '/api/v1/invoices',
+        opts: {
           query: getQuery(event)
         }
-      )
+      })
 
       const total = response.headers.get('X-Total-Count')
       return {

@@ -1,19 +1,17 @@
 import { createError } from 'h3'
+import { fetchWithAuth } from '../../_utils/fetchWithAuth'
 import type { ApiResponse, Transaction } from '~/types/api'
 
 export default defineEventHandler(
   async (event): Promise<ApiResponse<Transaction[]>> => {
-    const config = useRuntimeConfig()
     const id = getRouterParam(event, 'id')
 
     try {
-      const response = await $fetch.raw<Transaction[]>(
-        `/api/v1/invoices/${id}/transactions`,
-        {
-          baseURL: config.apiBaseUrl,
-          query: getQuery(event)
-        }
-      )
+      const response = await fetchWithAuth<Transaction[]>(event, {
+        method: 'GET',
+        path: `/api/v1/invoices/${id}/transactions`,
+        opts: { query: getQuery(event) }
+      })
 
       const total = response.headers.get('X-Total-Count')
       return {

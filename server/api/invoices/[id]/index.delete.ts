@@ -1,13 +1,13 @@
 import { createError, getRouterParam } from 'h3'
+import { fetchWithAuth } from '../../_utils/fetchWithAuth'
 
 export default defineEventHandler(async (event): Promise<void> => {
-  const config = useRuntimeConfig()
   const id = getRouterParam(event, 'id')
 
   try {
-    await $fetch.raw(`/api/v1/invoices/${id}`, {
+    await fetchWithAuth(event, {
       method: 'DELETE',
-      baseURL: config.apiBaseUrl
+      path: `/api/v1/invoices/${id}`
     })
   } catch (error: any) {
     sendError(

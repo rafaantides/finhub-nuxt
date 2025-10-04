@@ -2,8 +2,15 @@ import { getCookie } from 'h3'
 
 export async function fetchWithAuth<T>(
   event: any,
-  path: string,
-  opts: any = {}
+  {
+    method,
+    path,
+    opts = {}
+  }: {
+    method: string
+    path: string
+    opts?: any
+  }
 ) {
   const config = useRuntimeConfig()
   const token = getCookie(event, 'auth-token')
@@ -13,6 +20,7 @@ export async function fetchWithAuth<T>(
   }
 
   return await $fetch.raw<T>(path, {
+    method,
     baseURL: config.apiBaseUrl,
     headers: {
       Authorization: `Bearer ${token}`,

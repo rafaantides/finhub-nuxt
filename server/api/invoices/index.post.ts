@@ -1,16 +1,15 @@
 import { createError, readBody } from 'h3'
+import { fetchWithAuth } from '../_utils/fetchWithAuth'
 import type { Transaction } from '~/types/api'
 
 export default defineEventHandler(
   async (event): Promise<{ data: Transaction | null }> => {
-    const config = useRuntimeConfig()
     const body = await readBody<Partial<Transaction>>(event)
-
     try {
-      const response = await $fetch.raw<Transaction>(`/api/v1/invoices`, {
+      const response = await fetchWithAuth<Transaction>(event, {
         method: 'POST',
-        baseURL: config.apiBaseUrl,
-        body
+        path: `/api/v1/invoices`,
+        opts: { body }
       })
 
       return {

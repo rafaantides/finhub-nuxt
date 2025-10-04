@@ -1,17 +1,17 @@
 import { createError, readBody, getRouterParam } from 'h3'
+import { fetchWithAuth } from '../../_utils/fetchWithAuth'
 import type { Transaction } from '~/types/api'
 
 export default defineEventHandler(
   async (event): Promise<{ data: Transaction | null }> => {
-    const config = useRuntimeConfig()
     const id = getRouterParam(event, 'id')
     const body = await readBody<Partial<Transaction>>(event)
 
     try {
-      const response = await $fetch.raw<Transaction>(`/api/v1/invoices/${id}`, {
+      const response = await fetchWithAuth<Transaction>(event, {
         method: 'PUT',
-        baseURL: config.apiBaseUrl,
-        body
+        path: `/api/v1/invoices/${id}`,
+        opts: { body }
       })
 
       return {
