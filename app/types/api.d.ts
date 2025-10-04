@@ -2,6 +2,20 @@ type ApiResponse<T> = {
   data?: T
   total?: number | null
 }
+
+export interface LoginRequest {
+  identifier: string // username or email
+  password: string
+}
+
+export interface LoginResponse {
+  token: string
+}
+
+export interface AppError {
+  message: string
+  details?: any
+}
 export interface Category {
   id: string
   name: string
